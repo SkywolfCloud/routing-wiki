@@ -1,0 +1,15 @@
+{
+  "name": "bird-wiki",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Skywolf-Technology/bird-wiki.git",
+  "author": "pppwaw <pppwaw@pppwaw.top>",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "devDependencies": {
+    "vuepress": "^2.0.0-beta.36"
+  }
+}
