@@ -2,7 +2,7 @@
 lang: zh-CN
 home: true
 actions:
-  - text: 介绍
+  - text: 开始阅读
     link: /介绍/
 ---
 
