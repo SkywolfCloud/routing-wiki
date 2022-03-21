@@ -1,8 +1,10 @@
 ---
 lang: zh-CN
+home: true
+actions:
+  - text: 介绍
+    link: /介绍/
 ---
-
-这是一篇关于bird的百科（或者手册）。欢迎各位批评指导。
 
 目前进度：
 
