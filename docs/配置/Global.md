@@ -57,12 +57,12 @@ debug protocols all|off|{ states|routes|filters|interfaces|events|packets [, ...
 常见用法：
 
 ```
-debug all;
+debug protocols all;
 ```
 
 
 
-## router id
+### router id
 
 顾名思义，为bird设定一个router id，它是路由器的**全球唯一标识**，通常为路由器的IPv4地址之一。
 
@@ -78,5 +78,21 @@ router id IPv4 address
 
 ```
 router id 114.5.1.4;
+```
+
+### define
+
+定义一个常量
+
+语法：
+
+```
+define constant = expression
+```
+
+常见用法：
+
+```
+define ASN = 114514;
 ```
 
