@@ -114,7 +114,7 @@ scan time 10; # 将扫描时间设置为10秒
 interface pattern [, ...]
 ```
 
-请参照[前面所述](./Protocol.md#interface)。
+请参照[前面所述](Protocol.md#interface)。
 
 interface中仅有`preferred`选项可用。该选项用于选择网络接口的首选IP地址，作为数据包的源地址或路由协议宣布的下一跳。
 
