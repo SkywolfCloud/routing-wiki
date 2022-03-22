@@ -4,8 +4,8 @@ home: true
 actions:
   - text: 快速开始
     link: /quickstart/
-  - text: 详细wiki
-    link: /specific/介绍/
+  - text: 详细配置
+    link: /specific/
 ---
 
 
