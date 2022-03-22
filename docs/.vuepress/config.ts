@@ -28,6 +28,16 @@ module.exports = {
                 '/specific/BGP/',
                 '/specific/过滤器/'
             ]
-        }
+        },
+        navbar: [
+            {
+                text: "快速开始",
+                link: "/quickstart/"
+            },
+            {
+                text: "详细配置",
+                link: "/specific/"
+            }
+        ]
     },
 }
