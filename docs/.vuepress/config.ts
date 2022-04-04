@@ -33,10 +33,6 @@ module.exports = {
             {
                 text: "快速开始",
                 link: "/quickstart/"
-            },
-            {
-                text: "详细配置",
-                link: "/specific/"
             }
         ]
     },
