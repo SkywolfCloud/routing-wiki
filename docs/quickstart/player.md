@@ -169,3 +169,42 @@ protocol bgp bgp_as7720_v6 { # 建议给自己指定一个命名规则
 通常而言，如果你只有一台机器，或者你的每台向外广播的机器都只广播自己的前缀，并且相互用公网互联，那么目前的配置已经足够了。但如果你需要使用Anycast等技术，或者需要搭建一个内网，那么目前的配置就力有不逮。
 
 下一篇，我们将讲解多地部署bird的时候，该如何配置。
+
+## 附录：完整配置文件
+
+```
+log syslog all;
+router id 1.1.1.1; # 指定路由ID，通常而言需要全球单播ipv4作为routerid
+define ASN=114514; # 定义常量ASN，提升可扩展性
+define OWNIPv6s=[2404::/48]; # 定义OWNIPv6s，包括自己的IPv6，提升可扩展性，为后续过滤器做准备
+protocol device { # 扫描设备IP，这么写即可
+};
+protocol kernel {
+    ipv6 {
+        export all; # 将所有路由都导入系统路由表
+    };
+};
+protocol static static_v6 {
+    ipv6;
+    route 2404::/48 reject; #在STATIC中添加路由
+};
+filter export_filter_v6 {
+if net ~ OWNIPv6s then accept; # 如果前缀包括在OWNIPv6s内则放出
+reject; # 否则全部拒绝
+};
+filter import_filter_v6 {
+if net ~ [::/0] then reject; # 如果为默认路由则拒绝
+accept; # 接收所有其他路由
+};
+protocol bgp bgp_as7720_v6 { # 建议给自己指定一个命名规则
+	local 2405::1 as ASN; # 指定本端地址与ASN
+	neighbor 2405::2 as 7720;  # 指定对端地址与ASN
+	ipv6 { # 指定要在该BGP邻居上跑的协议
+		import import_filter_v6; # 指定导入过滤器
+		export export_filter_v6; # 指定导出过滤器
+		export limit 10; # 限制导出前缀数量，根据需要调整，防止过滤器配糊导致session爆炸需要联系对方NOC手动重启（比如HE）
+	};
+	graceful restart; # 平滑重启，建议支持，防止重启bird的时候造成路由撤回导致服务中断
+};
+```
+
