@@ -7,26 +7,26 @@ module.exports = {
                 '/quickstart/',
                 '/quickstart/before.md',
                 '/quickstart/player.md',
-                '/quickstart/multi_location.md',
                 '/quickstart/idc.md',
+                '/quickstart/multi_location.md',
                 '/quickstart/after.md'
             ],
-            "/specific/": [
-                '/specific/',
-                '/specific/介绍/',
+            "/bird/": [
+                '/bird/',
+                '/bird/介绍/',
                 {
                     text: "配置",
-                    link: "/specific/配置/",
+                    link: "/bird/配置/",
                     children: [
-                        '/specific/配置/README.md',
-                        '/specific/配置/Global.md',
-                        '/specific/配置/Protocol.md',
-                        '/specific/配置/Channel.md',
-                        '/specific/配置/Template.md'
+                        '/bird/配置/README.md',
+                        '/bird/配置/Global.md',
+                        '/bird/配置/Protocol.md',
+                        '/bird/配置/Channel.md',
+                        '/bird/配置/Template.md'
                     ]
                 },
-                '/specific/BGP/',
-                '/specific/过滤器/'
+                '/bird/BGP/',
+                '/bird/过滤器/'
             ]
         },
         navbar: [
