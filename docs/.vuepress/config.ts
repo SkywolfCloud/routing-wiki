@@ -19,13 +19,9 @@ module.exports = {
                     link: "/bird/配置/",
                     children: [
                         '/bird/配置/README.md',
-                        '/bird/配置/Global.md',
-                        '/bird/配置/Protocol.md',
-                        '/bird/配置/Channel.md',
-                        '/bird/配置/Template.md'
+                        '/bird/配置/BGP.md'
                     ]
                 },
-                '/bird/BGP/',
                 '/bird/过滤器/'
             ]
         },
