@@ -35,7 +35,17 @@ title: 开始之前
 
 如果仅有`via`没有`dev`，那么会递归查询到至少拥有`dev`的下一跳，根据原来的`via`和查询到的`dev`，按照第一条规则处理。
 
+## BGP Session 与 IP Transit
 
+有的时候，我们会看到有商家说：提供BGP Session，也有的商家说：提供 IP Transit，那么它们的区别在哪呢？
+
+区别：BGP Session 指的是一个会话，而IP Transit是在这个会话之内提供的服务。
+
+一般而言，提供BGP Session的商家会给你提供互联网上全表（互联网上所有IP的路由）的服务，这项服务也被称作IP Transit。也就是说，一般商家而言的BGP Session，包括IP Transit。
+
+而当我们直接买带宽的时候，我们会听到IP Transit（有时简称IPT），因为它要与另外一项服务：传输（Transit）区分开，后者指的是一条点对点的隧道，但是有服务保证。
+
+而鉴于目前互联网上通用的不同AS间发送路由的协议只有BGP，所以IP Transit一般隐含了BGP Session，不然路由无法接收，更谈不上广播了。
 
 ## 什么是BGP
 
