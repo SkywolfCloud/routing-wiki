@@ -28,6 +28,14 @@ title: 阶段2 向他人服务
 
 ## 概念
 
+### IRR
+
+IRR（Internet Routing Registry）是存储互联网路由对象的数据库，里面记录了某个前缀该被路由到哪个ASN。IRR实际上由很多个数据库组成，具体列表请看[这里](https://www.irr.net/docs/list.html)。五大RIR（ARIN，RIPE，AFRINIC，APNIC，LACNIC），比较老的T1（LEVEL3，NTTCOM）都有自己的IRR数据库，同时还有一个商业数据库RADb和一个非营利数据库ALTDB。这9个数据库是目前比较通用的数据库。
+
+### RPKI
+
+关于RPKI的介绍我推荐查看[这篇文章](https://blog.cloudflare.com/rpki/)。简而言之，RPKI也可以用来将ASN与路由关联在一起，但与IRR的区别是RPKI需要使用证书签名，使用它可以有效地防止路由劫持。
+
 ### 上下游和对等
 
 在业务中，我们遇到的需要建立BGP的对象主要可以分为三类：上游，下游和对等。
@@ -61,6 +69,22 @@ title: 阶段2 向他人服务
 ### AS-SET
 
 AS-SET，顾名思义，一个AS的集合。一个AS-SET内通常要包含自己以及自己的下游的ASN。AS-SET允许嵌套。
+
+### BGP Community
+
+BGP Community（也称BGP社区） 类似于给路由的标签，对等方可以根据标签内容来做出自己的选择。
+
+BGP Community 有如下三种类型：
+
+- `BGP Community (BGP社区)`，为一个4字节的值，在Bird内显示为`(2byte ASN,2byte value)`，前二字节为ASN，后二字节由AS自由分配。由于使用它需要一个2byte的ASN（目前申请比较困难），所以一般在大ISP中能见到，或者使用保留ASN。
+- `BGP Extended Community (BGP扩展社区)`，在鸟内一般表示为`(type,administrator,value)`，为一个八字节的值，前二字节为类型，后六字节为管理员和分配的编号，由AS自行分配。它比较著名的应用位于MPLS-VPN内。
+- `BGP Large Community (BGP大型社区)`，在鸟内一般表示为`(4byte ASN,4byte value,4byte value)`，为一个12字节的值，前四字节为ASN，中间四字节与后四字节由AS自由分配。它被开发的主要原因是因为4字节ASN不能用于普通的BGP社区。
+
+目前，在公网上应用比较广的主要为`BGP Community`与`BGP Large Community`
+
+RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也就是`NO_EXPORT`, `NO_ADVERTISE`和`NO_EXPORT_SUBCONFED`。在默认情况下，bird会自动处理这些BGP社区。
+
+
 
 ## 过滤器
 
@@ -189,7 +213,168 @@ Skywolf 的规则：
 1. 若路由为默认路由，或长度小于最小值/大于最大值，则拒绝。（对于 IPv4，这是 8 和 24。对于 IPv6 来说，这是 16 和 48。）
 2. 若路由的起源ASN为保留ASN，或BGP Path中包含保留ASN，则拒绝。
 3. 若路由为保留前缀，则拒绝。
-4. 若路由的RIR与ASN匹配，且RPKI不为INVALID，则接受。
+4. 若路由的IRR与ASN匹配，且RPKI不为INVALID，则接受。
 
-总结而言，我们只应该接受路由长度大于最小值小于最大值，path内不包含保留ASN，不为保留前缀，且RIR匹配，RPKI不为INVALID的路由。
+总结而言，对于对等与下游，我们只应该接受路由长度大于最小值小于最大值，path内不包含保留ASN，不为保留前缀，且IRR匹配，RPKI不为INVALID的路由。
+
+而对于上游，我们仅验证RPKI不为INVALID，路由长度大于最小值小于最大值，path内不包含保留ASN，不为保留前缀即可，不必验证IRR。
+
+### 上下游对等与自我路由的区分
+
+因为如上规则，所以我们需要将上下游对等与自身需要BGP广播出去的路由加以区分。
+
+我们有两种区分方式：
+
+1. 通过BGP Community来实现
+2. 通过分表来实现
+
+在这里，我们仅讲述第一种，有需要可以自己去研究第二种。
+
+
+
+### 实现
+
+下面我们将分为常规过滤，RPKI过滤，IRR过滤跟过滤器撰写来一一实现
+
+#### 常规过滤
+
+这一部分都是些固定的杂活，直接照抄即可。
+
+```
+define BOGON_ASNS = [ # 定义保留ASN
+    0,                      # RFC 7607
+    23456,                  # RFC 4893 AS_TRANS
+    64496..64511,           # RFC 5398 and documentation/example ASNs
+    64512..65534,           # RFC 6996 Private ASNs
+    65535,                  # RFC 7300 Last 16 bit ASN
+    65536..65551,           # RFC 5398 and documentation/example ASNs
+    65552..131071,          # RFC IANA reserved ASNs
+    4200000000..4294967294, # RFC 6996 Private ASNs
+    4294967295              # RFC 7300 Last 32 bit ASN
+];
+define BOGON_PREFIXES_V4 = [ # 定义保留IPv4前缀
+    0.0.0.0/8+,             # RFC 1122 'this' network
+    10.0.0.0/8+,            # RFC 1918 private space
+    100.64.0.0/10+,         # RFC 6598 Carrier grade nat space
+    127.0.0.0/8+,           # RFC 1122 localhost
+    169.254.0.0/16+,        # RFC 3927 link local
+    172.16.0.0/12+,         # RFC 1918 private space 
+    192.0.2.0/24+,          # RFC 5737 TEST-NET-1
+    192.88.99.0/24{25,32},        # RFC 7526 deprecated 6to4 relay anycast. If you wish to allow this, change `24+` to `24{25,32}`(no more specific)
+    192.168.0.0/16+,        # RFC 1918 private space
+    198.18.0.0/15+,         # RFC 2544 benchmarking
+    198.51.100.0/24+,       # RFC 5737 TEST-NET-2
+    203.0.113.0/24+,        # RFC 5737 TEST-NET-3
+    224.0.0.0/4+,           # multicast
+    240.0.0.0/4+            # reserved
+];
+define BOGON_PREFIXES_V6 = [ # 定义保留IPv6前缀
+    ::/8+,                  # RFC 4291 IPv4-compatible, loopback, et al
+    0064:ff9b::/96+,        # RFC 6052 IPv4/IPv6 Translation
+    0064:ff9b:1::/48+,      # RFC 8215 Local-Use IPv4/IPv6 Translation
+    0100::/64+,             # RFC 6666 Discard-Only
+    2001::/32{33,128},      # RFC 4380 Teredo, no more specific
+    2001:2::/48+,           # RFC 5180 BMWG
+    2001:10::/28+,          # RFC 4843 ORCHID
+    2001:db8::/32+,         # RFC 3849 documentation
+    2002::/16{17,128},             # RFC 7526 deprecated 6to4 relay anycast. If you wish to allow this, change `16+` to `16{17,128}`(no more specific)
+    3ffe::/16+, 5f00::/8+,  # RFC 3701 old 6bone
+    fc00::/7+,              # RFC 4193 unique local unicast
+    fe80::/10+,             # RFC 4291 link local unicast
+    fec0::/10+,             # RFC 3879 old site local unicast
+    ff00::/8+               # RFC 4291 multicast
+];
+function general_check(){ # 返回true则拒绝，返回false则允许
+	if bgp_path ~ BOGON_ASNS then return true; # 如果路径包含保留ASN则返回true
+    case net.type {
+        NET_IP4: return net.len > 24 || net ~ BOGON_PREFIXES_V4; # IPv4 CIDR 大于 /24 为太长
+        NET_IP6: return net.len > 48 || net ~ BOGON_PREFIXES_V6; # IPv6 CIDR 大于 /48 为太长
+        else: print "unexpected net.type , net.type, " ", net; return false; # 保底，一般不应该出现非IP4/IP6的前缀。
+    }
+};
+```
+
+#### RPKI
+
+配置RPKI最简单的方法是使用RTR连接上现有的RPKI验证服务器。在这里，我们会使用Cloudflare的服务器。
+
+目前而言，公网有大量的前缀没有签署RPKI，所以我们仅拒绝INVALID的路由，允许UNKNOWN与VALID的路由。
+
+如下所示：
+
+```
+roa4 table rpki4; # 定义两个ROA表，用来接收RPKI。
+roa6 table rpki6; # 定义两个ROA表，用来接收RPKI。
+
+protocol rpki rpki_cloudflare { # 配置RPKI协议示例，取名为rpki_cloudflare
+  roa4 {
+    table rpki4; # 指定roa表
+  };
+  roa6 {
+    table rpki6; # 指定roa表
+  };
+  remote "rtr.rpki.cloudflare.com" port 8282; # 指定RTR服务器
+  retry keep 5;
+  refresh keep 30;
+  expire 600;
+  transport tcp; 
+}
+function rpki_check() { # 定义rpki检查函数，如果验证为INVALID则为 true
+    if ( net.type = NET_IP4 && roa_check(rpki4, net, bgp_path.last) = ROA_INVALID ) then {
+    return true;
+  }
+  else if ( net.type = NET_IP6 && roa_check(rpki6, net, bgp_path.last) = ROA_INVALID ) then {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+```
+
+#### IRR
+
+对于IRR，由于IRR没有一个协议来进行分发，所以我们需要使用如下步骤来生成前缀列表，从而过滤IRR：
+
+1. 使用比如`bgpq4`等软件获取ASN/ASSET的IP前缀列表。
+2. 用工具将前缀拼合进如下函数
+3. 与前后拼合，重载bird
+
+```
+function irr_check(string as_set) { # 定义IRR检查函数，如果验证正确则返回true
+	if net.type = NET_IP4 then { # IPv4检查
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24}, <前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
+	} else if net.type = NET_IP6 then { # IPv6检查
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,48} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,48} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,48} ...] then return true;else return false;};
+	} else 
+};
+```
+
+其中<>为参数，格式为：
+
+- \<AS-SET\>: `AS114514`, `AS114514:AS-ALL`, `AS-SKYWOLF`
+- \<前缀IP段\>: `192.168.0.0`或`2404::`
+- \<前缀长度\>: `24`
+
+至于工具，就交给你们自己去写吧（逃
+
+#### 过滤器撰写
+
+# TODO
+
+现在，我们就需要将上面的东西都拼合到一起，从而写出最终的过滤器。
+
+由于我们的过滤器需要携带参数，所以我们不使用`filter`，转而使用`function`，并在编写会话的时候使用`where`语句来调用。
+
+如下所示:
+
+```
+function import_filter_upstream() {
+
+}
+```
 
