@@ -154,57 +154,58 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 
 > # 飓风电力的路由过滤算法
 >
-> 这是对客户和对等人有明确过滤的路由过滤算法。
+> \# HE 路由过滤列表
 >
-> \1. 试图为这个网络找到一个as-set来使用。
+> 这是具有显式过滤的客户和对等方的路由过滤列表：
 >
-> 1.1 在peeringdb中，对于这个ASN，检查一个IRR as-set名称。
-> 通过检索验证as-set的名称。如果它存在，就使用它。
+> \1.尝试查找该网络的AS-SET
 >
-> 1.2 在IRR中，查询该ASN的aut-num。 如果存在，检查该ASN的aut-num，看看我们是否可以从他们的IRR策略中提取as-set，即他们将通过找到出口或mp-export到AS6939、ANY或AS-ANY来向Hurricane宣布什么。
-> 优先顺序如下。使用第一个匹配，在 "mp-export "之前检查 "export"，在 "export: to ANY "或 "export: to AS-ANY "之前检查 "export:to AS6939"。
-> 通过检索验证as-set的名称。如果它存在，就使用它。
+> 1.1 使用在PeeringDB中匹配该ASN所属IRR策略中的AS-SET如果它存在
 >
-> 1.3 检查由飓风电气的NOC维护的各种内部列表，这些列表将ASN映射到我们发现或被告知的as-set名称。
-> 通过检索验证as-set的名称。如果它存在，就使用它。
+> 1.2 在 IRR 中，查询此 ASN 的 aut-num。如果存在，请检查此 ASN 的 aut-num 以查看我们是否可以从他们的 IRR 策略中提取他们将通过查找到 AS6939、ANY 或 AS-ANY 的 export 或 mp-export 向 HE 宣布的内容的资产。
+> 优先顺序如下：使用第一个匹配项，在“mp-export”之前检查“export”，在“export: to ANY”或“export: to AS-ANY”之前检查“export: to AS6939”。
+> 如果存在，请使用查询来验证AS-SET。
 >
-> 1.4 如果在前面的步骤中没有找到as-set名称，则使用ASN。
+> 1.3 检查由 HE 的 NOC 维护的各种内部列表，这些列表将 ASN 映射到我们发现或被告知它们的AS-SET。
+> 如果存在，请使用通过查询来验证AS-SET。
 >
-> \2. 收集所有具有该ASN的BGP会话的接收路由。这将详细说明接受和过滤的路由。
+> 1.4 如果前面的步骤没有找到AS-SET，则使用 ASN。
 >
-> \3. 对于每个路由，执行以下拒绝测试。
+> \2. 收集与此 ASN的所有 BGP 会话接收的路由。这个结果同时接受并进行过滤。
 >
-> 3.1 拒绝默认路由0.0.0.0/0和::/0。
+> \3. 对于每条路由，执行以下拒绝测试：
 >
-> 3.2 拒绝使用BGP AS_SET符号的AS路径（即{1}或{1 2}，等等）。参见 draft-ietf-idr-deprecat-as-set-confed-set。
+> 3.1 拒绝默认路由 0.0.0.0/0 和 ::/0。
 >
-> 3.3 拒绝长度小于最小值和大于最大值的前缀。对于 IPv4，这是 8 和 24。对于 IPv6 来说，这是 16 和 48。
+> 3.2 拒绝使用 BGP AS_SET 表示法的 AS 路径（即 {1} 或 {1 2} 等）。请参阅draft-ietf-idr-deprecate-as-set-confed-set。
 >
-> 3.4 拒绝假名（RFC1918，文档前缀等）。
+> 3.3 拒绝前缀长度小于最小值和大于最大值。IPV4中为 8 和 24，IPV6为16 和 48。
 >
-> 3.5 拒绝Hurricane Electric所连接的所有交换所的前缀。
+> 3.4 拒绝 bogons（RFC1918、文档前缀等）。
 >
-> 3.6 拒绝长度超过50跳的AS路径。过多的BGP AS路径预置是一种自残式的漏洞。
+> 3.5 拒绝 HE 连接到的所有来自IXP的前缀。
 >
-> 3.7 拒绝使用1000000和4199999999之间未分配的32位ASN的AS路径。https://www.iana.org/assignments/as-numbers/as-numbers.xhtml
+> 3.6 拒绝长度超过 50 跳的 AS 路径。过多的 BGP AS 路径预置是一个自我造成的漏洞。
 >
-> 3.8 拒绝使用AS 23456的AS路径。在支持32位ASN的BGP发言人的AS路径中不应该遇到AS 23456。
+> 3.7 拒绝使用 1000000 到 4199999999 之间未分配的 32 位 ASN 中的 AS 路径。 请参阅![img](file:///C:\Users\pppwaw\AppData\Roaming\Tencent\QQ\Temp\%W@GJ$ACOF(TYDYECOKVDYB.png)https://www.iana.org/assignments/as-numbers/as-numbers.xhtml
 >
-> 3.9 拒绝使用AS 0的AS路径。 根据RFC 7606，"BGP发言人不得发起或传播AS号为零的路由"。
+> 3.8 拒绝使用 AS23456 的 AS 路径。 在支持 32 位 ASN 的 BGP 广播的 AS 路径中不应遇到 AS23456。
 >
-> 3.10 根据起源AS和前缀，拒绝具有RPKI状态INVALID_ASN或INVALID_LENGTH的路由。
+> 3.9 拒绝使用 AS 0 的 AS 路径。根据 RFC 7606，“BGP 广播者不得发起或传播 AS 编号为零的路由”。
 >
-> \4. 对于每个路由，执行以下验收测试。
+> 3.10 拒绝在源ASN或IP前缀的RPKI中含有INVALID_ASN 或 INVALID_LENGTH状态的路由
 >
-> 4.1 如果原点是邻居AS，接受基于原点AS和前缀的RPKI状态为VALID的路由。
+> \4. 对于每条路由，执行以下接受测试：
 >
-> 4.2 如果前缀是已公布的下游路由，是已接受的起源前缀的子网，由于RPKI或RIR句柄匹配而被接受，接受该前缀。
+> 4.1 据源 AS 和前缀接受 RPKI 状态为 VALID 的路由。
 >
-> 4.3 如果前缀和对等AS的RIR句柄匹配，则接受该前缀。
+> 4.2 如果前缀是一个宣布的下游路由并是一个已接受的起源前缀的子网，该前缀由于 RPKI 或 RIR 句柄匹配而被接受，则接受该前缀。
 >
-> 4.4 如果该前缀与该对等体的IRR策略所允许的前缀完全匹配，则接受该前缀。
+> 4.3 如果 RIR 处理前缀和对等 AS 匹配，则接受前缀。
 >
-> 4.5 如果路径中的第一个AS与对等体相匹配，并且路径有两跳，原生AS在对等体AS的扩展as-set中，并且RPKI状态是VALID，或者原生AS和前缀有RIR句柄匹配，则接受该前缀。
+> 4.4 如果此前缀与该对等网络的 IRR 策略允许的前缀完全匹配，则接受该前缀。
+>
+> 4.5 如果路径中的第一个 AS 与对等网络匹配，并且路径为两跳，并且源 AS 在对等 AS 的扩展AS-SET中，并且 RPKI 状态为 VALID 或存在与源 AS 的 RIR 句柄匹配和前缀，接受前缀。
 >
 > \5. 拒绝所有未明确接受的前缀
 
