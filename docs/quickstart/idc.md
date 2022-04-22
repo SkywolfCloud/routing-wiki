@@ -98,7 +98,7 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > This is the route filtering algorithm for customers and peers that have explicit filtering:
 >
-> \1. Attempt to find an as-set to use for this network.
+> 1. Attempt to find an as-set to use for this network.
 >
 > 1.1 In peeringdb, for this ASN, check for an IRR as-set name.
 > Validate the as-set name by retrieving it. If it exists, use it.
@@ -112,9 +112,9 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 1.4 If no as-set name is found by the previous steps use the ASN.
 >
-> \2. Collect the received routes for all BGP sessions with this ASN. This details both accepted and filtered routes.
+> 2. Collect the received routes for all BGP sessions with this ASN. This details both accepted and filtered routes.
 >
-> \3. For each route, perform the following rejection tests:
+> 3. For each route, perform the following rejection tests:
 >
 > 3.1 Reject default routes 0.0.0.0/0 and ::/0.
 >
@@ -136,7 +136,7 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 3.10 Reject routes that have RPKI status INVALID_ASN or INVALID_LENGTH based on the origin AS and prefix.
 >
-> \4. For each route, perform the following acceptance tests:
+> 4. For each route, perform the following acceptance tests:
 >
 > 4.1 If the origin is the neighbor AS, accept routes that have RPKI status VALID based on the origin AS and prefix.
 >
@@ -148,17 +148,16 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 4.5 If the first AS in the path matches the peer and path is two hops long and the origin AS is in the expanded as-set for the peer AS and either the RPKI status is VALID or there is an RIR handle match for the origin AS and the prefix, accept the prefix.
 >
-> \5. Reject all prefixes not explicitly accepted
+> 5. Reject all prefixes not explicitly accepted
 
 翻译
 
-> # 飓风电力的路由过滤算法
+> # Hurricane Electric 的路由过滤算法
 >
-> \# HE 路由过滤列表
 >
 > 这是具有显式过滤的客户和对等方的路由过滤列表：
 >
-> \1.尝试查找该网络的AS-SET
+> 1.尝试查找该网络的AS-SET
 >
 > 1.1 使用在PeeringDB中匹配该ASN所属IRR策略中的AS-SET如果它存在
 >
@@ -171,9 +170,9 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 1.4 如果前面的步骤没有找到AS-SET，则使用 ASN。
 >
-> \2. 收集与此 ASN的所有 BGP 会话接收的路由。这个结果同时接受并进行过滤。
+> 2. 收集与此 ASN的所有 BGP 会话接收的路由。这个结果同时接受并进行过滤。
 >
-> \3. 对于每条路由，执行以下拒绝测试：
+> 3. 对于每条路由，执行以下拒绝测试：
 >
 > 3.1 拒绝默认路由 0.0.0.0/0 和 ::/0。
 >
@@ -187,7 +186,7 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 3.6 拒绝长度超过 50 跳的 AS 路径。过多的 BGP AS 路径预置是一个自我造成的漏洞。
 >
-> 3.7 拒绝使用 1000000 到 4199999999 之间未分配的 32 位 ASN 中的 AS 路径。 请参阅![img](file:///C:\Users\pppwaw\AppData\Roaming\Tencent\QQ\Temp\%W@GJ$ACOF(TYDYECOKVDYB.png)https://www.iana.org/assignments/as-numbers/as-numbers.xhtml
+> 3.7 拒绝使用 1000000 到 4199999999 之间未分配的 32 位 ASN 中的 AS 路径。 请参阅 https://www.iana.org/assignments/as-numbers/as-numbers.xhtml
 >
 > 3.8 拒绝使用 AS23456 的 AS 路径。 在支持 32 位 ASN 的 BGP 广播的 AS 路径中不应遇到 AS23456。
 >
@@ -195,7 +194,7 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 3.10 拒绝在源ASN或IP前缀的RPKI中含有INVALID_ASN 或 INVALID_LENGTH状态的路由
 >
-> \4. 对于每条路由，执行以下接受测试：
+> 4. 对于每条路由，执行以下接受测试：
 >
 > 4.1 据源 AS 和前缀接受 RPKI 状态为 VALID 的路由。
 >
@@ -207,7 +206,7 @@ RFC要求所有支持BGP社区的路由器必须处理知名的BGP社区，也�
 >
 > 4.5 如果路径中的第一个 AS 与对等网络匹配，并且路径为两跳，并且源 AS 在对等 AS 的扩展AS-SET中，并且 RPKI 状态为 VALID 或存在与源 AS 的 RIR 句柄匹配和前缀，接受前缀。
 >
-> \5. 拒绝所有未明确接受的前缀
+> 5. 拒绝所有未明确接受的前缀
 
 Skywolf 的规则：
 
