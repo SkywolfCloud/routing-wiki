@@ -289,7 +289,7 @@ function general_check(){ # 返回true则拒绝，返回false则允许
     case net.type {
         NET_IP4: return net.len > 24 || net ~ BOGON_PREFIXES_V4; # IPv4 CIDR 大于 /24 为太长
         NET_IP6: return net.len > 48 || net ~ BOGON_PREFIXES_V6; # IPv6 CIDR 大于 /48 为太长
-        else: print "unexpected net.type , net.type, " ", net; return false; # 保底，一般不应该出现非IP4/IP6的前缀。
+        else: print "unexpected net.type ", net.type, " ", net; return false; # 保底，一般不应该出现非IP4/IP6的前缀。
     }
 };
 ```
