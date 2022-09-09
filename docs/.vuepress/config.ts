@@ -1,6 +1,5 @@
-const {docsearchPlugin} = require('@vuepress/plugin-docsearch')
-const {defaultTheme} = require('vuepress')
-const {viteBundler} = require('vuepress')
+import {docsearchPlugin} from '@vuepress/plugin-docsearch'
+import {defaultTheme,viteBundler} from "vuepress"
 module.exports = {
     title: 'Bird Wiki',
     description: '一篇关于bird的百科（或者手册）',
