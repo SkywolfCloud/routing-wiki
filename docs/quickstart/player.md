@@ -23,15 +23,15 @@ lang: zh-CN
 
 ## 安装Bird
 
-目前而言，在bullseye（Debian 11）中，stable源里的bird是2.0.7，backports源里的bird是2.0.8，最新版本是2.0.9。我们建议使用2.0.9，里面有对一些错误提示的改善修复，方便新手排查问题。如果您想使用2.0.8，将debian添加backports源后用apt安装即可。
+目前而言，在bullseye（Debian 11）中，stable源里的bird是2.0.7，backports源里的bird是2.0.8，最新版本是2.0.10。我们 **强烈建议 **使用2.0.10，里面修复了很多2.0.9的bug。如果您想使用2.0.8，将debian添加backports源后用apt安装即可。
 
-下面这段shell脚本直接复制到ssh执行即可快捷安装bird 2.0.9
+下面这段shell脚本直接复制到ssh执行即可快捷安装bird 2.0.10
 
 ```bash
 apt update
 apt install -y build-essential autoconf git flex bison m4 libssh-dev libncurses-dev libreadline-dev 
 cd ~
-git clone https://gitlab.nic.cz/labs/bird.git BIRD
+git clone https://gitlab.nic.cz/labs/bird.git -b 2.0.10 BIRD
 cd BIRD
 autoreconf
 ./configure --prefix= --sysconfdir=/etc/bird --runstatedir=/var/run/bird
@@ -44,10 +44,10 @@ make install
 返回内容第一行应该与如下相似：
 
 ```
-BIRD v2.0.9-6-g4b1aa37f ready.
+BIRD v2.0.10-6-g4b1aa37f ready.
 ```
 
-如果该行相似，并且版本号确认为2.0.9.且最后一行为
+如果该行相似，并且版本号确认为2.0.10.且最后一行为
 
 ```
 Daemon is up and running
@@ -152,8 +152,8 @@ protocol bgp bgp_as7720_v6 { # 建议给自己指定一个命名规则
 	local 2405::1 as ASN; # 指定本端地址与ASN
 	neighbor 2405::2 as 7720;  # 指定对端地址与ASN
 	ipv6 { # 指定要在该BGP邻居上跑的协议
-		import import_filter_v6; # 指定导入过滤器
-		export export_filter_v6; # 指定导出过滤器
+		import filter import_filter_v6; # 指定导入过滤器
+		export filter export_filter_v6; # 指定导出过滤器
 		export limit 10; # 限制导出前缀数量，根据需要调整，防止过滤器配糊导致session爆炸需要联系对方NOC手动重启（比如HE）
 	};
 	graceful restart; # 平滑重启，建议支持，防止重启bird的时候造成路由撤回导致服务中断
@@ -200,8 +200,8 @@ protocol bgp bgp_as7720_v6 { # 建议给自己指定一个命名规则
 	local 2405::1 as ASN; # 指定本端地址与ASN
 	neighbor 2405::2 as 7720;  # 指定对端地址与ASN
 	ipv6 { # 指定要在该BGP邻居上跑的协议
-		import import_filter_v6; # 指定导入过滤器
-		export export_filter_v6; # 指定导出过滤器
+		import filter import_filter_v6; # 指定导入过滤器
+		export filter export_filter_v6; # 指定导出过滤器
 		export limit 10; # 限制导出前缀数量，根据需要调整，防止过滤器配糊导致session爆炸需要联系对方NOC手动重启（比如HE）
 	};
 	graceful restart; # 平滑重启，建议支持，防止重启bird的时候造成路由撤回导致服务中断
