@@ -1,6 +1,6 @@
 ---
 title: 阶段1 BGP Player
-lang: zh-CN
+description: 从这篇文章开始，我们就要安装bird并开始往外广播了
 ---
 
 # 阶段1 BGP Player

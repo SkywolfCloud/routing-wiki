@@ -1,16 +1,17 @@
 {
-  "name": "bird-wiki",
-  "version": "1.0.1",
-  "main": "index.js",
-  "repository": "https://github.com/Skywolf-Technology/bird-wiki.git",
-  "author": "pppwaw <pppwaw@pppwaw.top>",
-  "license": "MIT",
+  "name": "routing-wiki",
+  "type": "module",
+  "version": "0.0.1",
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
-  "devDependencies": {
-    "@vuepress/plugin-docsearch": "^2.0.0-beta.51",
-    "vuepress": "^2.0.0-beta.51"
+  "dependencies": {
+    "@astrojs/starlight": "^0.34.3",
+    "astro": "^5.6.1",
+    "sharp": "^0.32.5"
   }
 }

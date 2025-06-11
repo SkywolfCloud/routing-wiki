@@ -1,13 +1,13 @@
 ---
-title: 简介
-lang: zh-CN
+title: 快速开始
+description: 这是一篇写给BGP新手的教程，旨在快速让Player们配置好bird并写好正确的过滤器
 ---
 
-# 简介
+# 快速开始
 
 这是一篇写给BGP新手的教程，旨在快速让Player们配置好bird并写好正确的过滤器。
 
-通常而言，你现在应该有一段IP和一个ASN了。~~如果你没有，欢迎前往 [Skywolf Cloud](https://skywolf.cloud) 申请~~
+通常而言，你现在应该有一段IP和一个ASN了。~~如果你没有，欢迎前往 [Skywolf Cloud](https://hk.skywolf.cloud) 申请~~
 
 你需要：
 
@@ -20,4 +20,4 @@ lang: zh-CN
 
 另，[点我查看如何用正确的方法询问问题](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)。
 
-我们默认使用的系统为Debian 11。
+我们默认使用的系统为Debian 11。 

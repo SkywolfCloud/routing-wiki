@@ -1,5 +1,6 @@
 ---
 title: 开始之前
+description: 介绍一些BGP跟Bird的相关知识
 ---
 
 # 开始之前
@@ -8,11 +9,11 @@ title: 开始之前
 
 ## 何为路由
 
-通俗而言，路由就是“将一个数据包根据路由表进行转发的过程”。
+通俗而言，路由就是"将一个数据包根据路由表进行转发的过程"。
 
-而一条路由，就是一条“这个目标地址该被转发到哪个接口”的记录。
+而一条路由，就是一条"这个目标地址该被转发到哪个接口"的记录。
 
-路由表，就是记录了很多个“这个目标地址该被转发到哪个接口”的表。
+路由表，就是记录了很多个"这个目标地址该被转发到哪个接口"的表。
 
 当然，路由表内还包含很多比如失效日期、MTU之类的附属信息，并通过优化手段进行存储，具体实现可以自行去查询各厂源代码或Google。
 
@@ -51,7 +52,7 @@ title: 开始之前
 
 以下文段来自[维基百科](https://zh.wikipedia.org/wiki/%E8%BE%B9%E7%95%8C%E7%BD%91%E5%85%B3%E5%8D%8F%E8%AE%AE)
 
-> **边界网关协议**（英语：Border Gateway Protocol，缩写：BGP）是[互联网](https://zh.wikipedia.org/wiki/互联网)上一个核心的去中心化自治[路由协议](https://zh.wikipedia.org/wiki/路由协议)。它通过维护IP[路由表](https://zh.wikipedia.org/wiki/路由表)或“前缀”表来实现[自治系统](https://zh.wikipedia.org/wiki/自治系统)（AS）之间的可达性，属于矢量路由协议。BGP不使用传统的[内部网关协议](https://zh.wikipedia.org/wiki/内部网关协议)（IGP）的指标，而使用基于路径、网络策略或规则集来决定路由。因此，它更适合被称为矢量性协议，而不是路由协议。
+> **边界网关协议**（英语：Border Gateway Protocol，缩写：BGP）是[互联网](https://zh.wikipedia.org/wiki/互联网)上一个核心的去中心化自治[路由协议](https://zh.wikipedia.org/wiki/路由协议)。它通过维护IP[路由表](https://zh.wikipedia.org/wiki/路由表)或"前缀"表来实现[自治系统](https://zh.wikipedia.org/wiki/自治系统)（AS）之间的可达性，属于矢量路由协议。BGP不使用传统的[内部网关协议](https://zh.wikipedia.org/wiki/内部网关协议)（IGP）的指标，而使用基于路径、网络策略或规则集来决定路由。因此，它更适合被称为矢量性协议，而不是路由协议。
 >
 > 大多数[互联网服务提供商](https://zh.wikipedia.org/wiki/互联网服务提供商)必须使用BGP来与其他ISP创建路由连接（尤其是当它们采取多宿主连接时）。因此，即使大多数互联网用户不直接使用它，但是与[7号信令系统](https://zh.wikipedia.org/wiki/7号信令系统)——即通过PSTN的跨供应商核心响应设置协议相比，BGP仍然是互联网最重要的协议之一。特大型的私有[IP](https://zh.wikipedia.org/wiki/网际协议)网络也可以使用BGP。例如，当需要将若干个大型的[OSPF](https://zh.wikipedia.org/wiki/OSPF)（[开放最短路径优先](https://zh.wikipedia.org/wiki/开放最短路径优先)）网络进行合并，而OSPF本身又无法提供这种可扩展性时。使用BGP的另一个原因是其能为多宿主的单个或多个ISP（[RFC 1998](https://tools.ietf.org/html/rfc1998)）网络提供更好的冗余。
 
@@ -110,7 +111,7 @@ Bird v3是Bird的下一代版本，该版本增加了多线程的支持。目前
 >
 > 分号 `;` 标示着一个选项或语句的结束，而花括号 `{ }` 内则是多个选项或语句。
 >
-> 在 BIRD 的配置文件中，有协议实例（`protocol <proto> <name> {}`），过滤器（`filter <name> [local_variables] {}`），函数（`function <name> [local_variables] {}`）可以定义，这些将在下文各部分选择性挑重点介绍。
+> 在 BIRD 的配置文件中，有协议实例（`protocol <proto> <n> {}`），过滤器（`filter <n> [local_variables] {}`），函数（`function <n> [local_variables] {}`）可以定义，这些将在下文各部分选择性挑重点介绍。
 >
 > `print` 用来输出内容，这些会输出在 BIRD 的日志文件中，在使用 systemd 的系统中，可以使用 `journalctl -xeu bird.service` 查看。
 >
@@ -179,5 +180,4 @@ Bird v3是Bird的下一代版本，该版本增加了多线程的支持。目前
 > }
 > ```
 >
-> 在 BIRD 中，if 和 case 的写法均与常见编程语言略有不同。
-
+> 在 BIRD 中，if 和 case 的写法均与常见编程语言略有不同。 
