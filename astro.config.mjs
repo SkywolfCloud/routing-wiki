@@ -19,8 +19,8 @@ export default defineConfig({
 				{
 					label: '快速开始',
 					items: [
-						{ label: '概述', slug: 'quickstart' },
-						{ label: '准备工作', slug: 'quickstart/before' },
+						{ label: '前言', slug: 'quickstart' },
+						{ label: '开始之前', slug: 'quickstart/before' },
 						{ label: '配置客户端', slug: 'quickstart/player' },
 						{ label: 'IDC配置', slug: 'quickstart/idc' },
 						{ label: '多地部署', slug: 'quickstart/multi-location' },
