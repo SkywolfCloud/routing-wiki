@@ -104,11 +104,11 @@ Bird v1 是最早的Bird，由两个Daemon分别支持IPv4与IPv6的路由，最
 
 ### v2
 
-Bird v2是目前Bird的主线版本。与v1相比，v2仅使用一个Daemon来运行v4与v6的路由。
+Bird v2是目前Bird的主线版本。与v1相比，v2仅使用一个Daemon来运行v4与v6的路由。在本教程中，我们将使用 bird v2 作为路由守护进程。
 
 ### v3
 
-Bird v3是Bird的下一代版本，该版本增加了多线程的支持。在本教程中，我们将使用 bird v3 作为路由守护进程。
+Bird v3是Bird的下一代版本，该版本增加了多线程的支持。
 
 ## 如何安装Bird
 
