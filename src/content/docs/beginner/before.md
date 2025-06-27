@@ -1,5 +1,5 @@
 ---
-title: 开始之前
+title: 一、开始之前
 description: 介绍一些BGP跟Bird的相关知识
 ---
 
@@ -30,21 +30,23 @@ description: 介绍一些BGP跟Bird的相关知识
 
 如果仅有`via`没有`dev`，那么会递归查询到至少拥有`dev`的下一跳，根据原来的`via`和查询到的`dev`，按照第一条规则处理。
 
-# BGP Session 、 BYOIP 与 IP Transit
+# BGP
+
+## BGP Session 、 BYOIP 与 IP Transit
 
 在网络行业中，我们经常会看到不同服务商宣传诸如“提供 BGP Session”、“支持 BYOIP”或“提供 IP Transit”等服务。但这些术语具体指的是什么？它们之间又有何区别？本章将对其进行简要梳理。
 
-## BGP Session
+### BGP Session
 
 **BGP Session** 指的是与服务商建立 Border Gateway Protocol（边界网关协议）会话的服务，常见于 IDC（数据中心）环境中。通过建立 BGP 会话，你可以将自己的 IP 地址广播到互联网，并通常能够接收到完整的 BGP 路由表（即“全表”）。这种服务多见于各类虚拟服务器，大多数情况下，BGP Session 所产生的流量会与你自身网络的出入流量合并计算。
 
-## BYOIP
+### BYOIP
 
 **BYOIP** 指的是“自带 IP 地址”的服务，常见于云计算平台（如 AWS、GCP）和部分 SaaS 提供商（如Cloudflare）。这项服务允许你将自己的 IP 地址段（通常是 RIR 分配的）映射到云平台上使用。
 
 与 BGP Session 和 IP Transit 不同的是，许多 BYOIP 服务**并不直接与用户建立 BGP 会话**。虽然服务商依然会使用 BGP 将你的 IP 广播到互联网，但你作为用户通常只需在控制面中提交 IP 段，后台由平台负责路由发布。因此，从你的角度看，它更像是使用一个“静态 IP”，而不是动态的路由对等关系。
 
-## IP Transit
+### IP Transit
 
 **IP Transit** 是最传统意义上的“接入互联网”服务，主要提供商是 ISP 或上游运营商。购买 IP Transit 意味着你可以使用对方的网络作为通往整个互联网的“高速公路”。
 
@@ -52,7 +54,7 @@ IP Transit 通常包含与对方建立 BGP Session 的能力，以便你用自�
 
 需要注意的是，**IP Transit 提供的是“通向互联网的路径”本身**，而不是像 DIA（Dedicated Internet Access）那样只提供网络访问能力却通常不带 BGP 功能。DIA 常面向企业客户，IP Transit 则更偏向网络服务商、内容分发商等具备一定网络运营能力的客户。
 
-# 什么是BGP
+## 什么是BGP
 
 以下文段来自[维基百科](https://zh.wikipedia.org/wiki/%E8%BE%B9%E7%95%8C%E7%BD%91%E5%85%B3%E5%8D%8F%E8%AE%AE)
 
@@ -61,6 +63,20 @@ IP Transit 通常包含与对方建立 BGP Session 的能力，以便你用自�
 > 大多数[互联网服务提供商](https://zh.wikipedia.org/wiki/互联网服务提供商)必须使用BGP来与其他ISP创建路由连接（尤其是当它们采取多宿主连接时）。因此，即使大多数互联网用户不直接使用它，但是与[7号信令系统](https://zh.wikipedia.org/wiki/7号信令系统)——即通过PSTN的跨供应商核心响应设置协议相比，BGP仍然是互联网最重要的协议之一。特大型的私有[IP](https://zh.wikipedia.org/wiki/网际协议)网络也可以使用BGP。例如，当需要将若干个大型的[OSPF](https://zh.wikipedia.org/wiki/OSPF)（[开放最短路径优先](https://zh.wikipedia.org/wiki/开放最短路径优先)）网络进行合并，而OSPF本身又无法提供这种可扩展性时。使用BGP的另一个原因是其能为多宿主的单个或多个ISP（[RFC 1998](https://tools.ietf.org/html/rfc1998)）网络提供更好的冗余。
 
 简而言之，BGP 是在自治系统之间使用的最主要的路由协议（尽管思科的 EIGRP 技术上也支持跨自治系统路由，但在实际互联网中几乎没有应用）。BGP 的核心作用是**在自治系统之间传递路由信息**，并通过策略控制和路径属性来选择并只传播**最优路径**给对端。
+
+## ASN、前缀、IRR、RPKI
+
+很多初学者这几个概念常常分不清楚，包括我自己。但现在，我可以简单为你解释一下它们之间的关系。
+
+**ASN（Autonomous System Number）** 即自治系统编号，用来标识一个自治系统（AS, Autonomous System）。一个自治系统通常代表一家企业、机构或某项网络业务，比如 Google（AS15169）、Cloudflare（AS13335）、Lumen（AS3356）。同一个公司在不同地区也可能使用多个 ASN（例如 Misaka Network Inc）。ASN 由五大 RIR（Regional Internet Registry，区域互联网注册管理机构，如 APNIC、ARIN、RIPE NCC）或其下属的 NIR（National Internet Registry，国家互联网注册管理机构，如 CNNIC、JPNIC）及 LIR（Local Internet Registry，地方互联网注册管理机构）负责分配。
+
+**前缀（Prefix）**，也叫 IP 段，是指一段连续的 IP 地址。组织通常以块为单位申请和广播 IP。在 IPv4 中，/24 是最小的可单独广播单位；在 IPv6 中通常是 /48。
+
+前缀和 ASN 在申请时彼此独立。一个组织可以拥有多个前缀和多个 ASN。但在实际广播时，每个前缀必须由一个起源 ASN（Origin AS）对外广播，也就是说，这个 IP 段需要由某个 AS 持有并宣布。那怎么管理哪些 AS 被授权广播哪些前缀呢？这就需要用到 IRR 和 RPKI。
+
+**IRR（Internet Routing Registry）** 是一个分布式数据库系统，用于登记和查询路由信息，包含路由对象（route object）、AS-SET 等。IRR 是目前最常用的路由归属管理工具之一，常见的 IRR 可在 https://irr.net/registry/ 查询。除了五大 RIR 自建的 IRR 外，还有像 RADB、ALTDB、LEVEL3 等企业或第三方运营的 IRR。不过，由于 IRR 管理分散，验证机制较弱，容易被滥用从而导致路由劫持。因此，社区正在积极推动用 RPKI 来补充甚至替代传统 IRR。
+
+**RPKI（Resource Public Key Infrastructure）** 是基于公钥基础设施（PKI）的一种路由验证机制，用于验证 BGP 路由通告的真实性和合法性。与分布式的 IRR 不同，RPKI 通过逐级授权、使用数字签名的方式，将 IP 资源和 ASN 的对应关系用加密证书加以验证，从源头上确认 IP 是否被合法授权给指定 AS 广播，从而有效防止路由被劫持或冒用。
 
 # Bird
 
@@ -117,3 +133,7 @@ Bird v3是Bird的下一代版本，该版本增加了多线程的支持。
 ## Bird的基本语法
 
 请参考 https://bird.xmsl.dev/docs/user-guide/5-1-introduction.html 
+
+
+
+如果你还想了解更多，也欢迎前往 https://www.cloudflare.com/zh-cn/learning/network-layer/what-is-the-network-layer/ 进行阅览。

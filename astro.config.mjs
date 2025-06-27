@@ -17,14 +17,15 @@ export default defineConfig({
 			],
 			sidebar: [
 				{
-					label: '快速开始',
+					label: '新手教程',
 					items: [
-						{ label: '前言', slug: 'quickstart' },
-						{ label: '开始之前', slug: 'quickstart/before' },
-						{ label: '配置客户端', slug: 'quickstart/player' },
-						{ label: 'IDC配置', slug: 'quickstart/idc' },
-						{ label: '多地部署', slug: 'quickstart/multi-location' },
-						{ label: '后续工作', slug: 'quickstart/after' },
+						{ label: '前言', slug: 'beginner' },
+						{ label: '一、开始之前', slug: 'beginner/before' },
+						{ label: '二、拉起BGP会话', slug: 'beginner/bring-up-a-bgp-session' },
+						{ label: '配置客户端', slug: 'beginner/player' },
+						{ label: 'IDC配置', slug: 'beginner/idc' },
+						{ label: '多地部署', slug: 'beginner/multi-location' },
+						{ label: '后续工作', slug: 'beginner/after' },
 					],
 				},
 				{
