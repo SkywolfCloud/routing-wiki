@@ -21,7 +21,7 @@ export default defineConfig({
 					items: [
 						{ label: '前言', slug: 'beginner' },
 						{ label: '一、开始之前', slug: 'beginner/before' },
-						{ label: '二、拉起BGP会话', slug: 'beginner/bring-up-a-bgp-session' },
+						{ label: '二、拉起一个BGP会话', slug: 'beginner/bring-up-a-bgp-session' },
 						{ label: '配置客户端', slug: 'beginner/player' },
 						{ label: 'IDC配置', slug: 'beginner/idc' },
 						{ label: '多地部署', slug: 'beginner/multi-location' },
