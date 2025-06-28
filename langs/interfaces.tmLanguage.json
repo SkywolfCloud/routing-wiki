@@ -1,0 +1,322 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "interfaces",
+  "scopeName": "source.interfaces",
+  "fileTypes": ["interfaces"],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#ip-addresses"
+    },
+    {
+      "include": "#interface-stanza"
+    },
+    {
+      "include": "#mapping-stanza"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#options"
+    },
+    {
+      "include": "#interface-names"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.number-sign.interfaces",
+      "begin": "#",
+      "end": "$",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.interfaces"
+        }
+      }
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.interfaces",
+          "begin": "\"",
+          "end": "\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.interfaces"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.interfaces"
+            }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.escape.interfaces",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.interfaces",
+          "begin": "'",
+          "end": "'",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.interfaces"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.interfaces"
+            }
+          }
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.decimal.interfaces",
+          "match": "\\b[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.hex.interfaces",
+          "match": "\\b0x[0-9a-fA-F]+\\b"
+        }
+      ]
+    },
+    "ip-addresses": {
+      "patterns": [
+        {
+          "name": "constant.numeric.ip.ipv4.interfaces",
+          "match": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?:/[0-9]{1,2})?\\b"
+        },
+        {
+          "name": "constant.numeric.ip.ipv6.interfaces",
+          "match": "\\b(?:[0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(?:/[0-9]{1,3})?\\b"
+        },
+        {
+          "name": "constant.numeric.ip.ipv6.interfaces",
+          "match": "::(?:[0-9a-fA-F]{0,4}:){0,6}[0-9a-fA-F]{0,4}(?:/[0-9]{1,3})?\\b"
+        },
+        {
+          "name": "constant.numeric.ip.ipv6.interfaces", 
+          "match": "(?:[0-9a-fA-F]{0,4}:){1,6}::(?:[0-9a-fA-F]{0,4}:){0,5}[0-9a-fA-F]{0,4}(?:/[0-9]{1,3})?\\b"
+        },
+        {
+          "name": "constant.numeric.ip.ipv6.interfaces",
+          "match": "\\bfe80::[0-9a-fA-F:]*%[a-zA-Z0-9_-]+\\b"
+        }
+      ]
+    },
+    "interface-stanza": {
+      "begin": "^\\s*(iface)\\s+([a-zA-Z0-9._:-]+)\\s+(inet|inet6|ipx|can)\\s+(static|dhcp|manual|loopback|ppp|wvdial|dynamic|auto|v4tunnel|6to4)\\s*$",
+      "end": "^(?=\\s*(?:iface|mapping|auto|allow-|no-auto-down|no-scripts|source|source-directory|$))",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.iface.interfaces"
+        },
+        "2": {
+          "name": "entity.name.interface.interfaces"
+        },
+        "3": {
+          "name": "keyword.other.address-family.interfaces"
+        },
+        "4": {
+          "name": "keyword.other.method.interfaces"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#options"
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#ip-addresses"
+        }
+      ]
+    },
+    "mapping-stanza": {
+      "begin": "^\\s*(mapping)\\s+([a-zA-Z0-9.*_-]+)\\s*$",
+      "end": "^(?=\\s*(?:iface|mapping|auto|allow-|no-auto-down|no-scripts|source|source-directory|$))",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.mapping.interfaces"
+        },
+        "2": {
+          "name": "string.unquoted.pattern.interfaces"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "name": "keyword.control.script.interfaces",
+          "match": "^\\s*(script)\\s+"
+        },
+        {
+          "name": "keyword.control.map.interfaces",
+          "match": "^\\s*(map)\\s+"
+        },
+        {
+          "include": "#strings"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.interfaces",
+          "match": "^\\s*(auto|allow-auto|allow-hotplug|allow-[a-zA-Z0-9_-]+|no-auto-down|no-scripts)\\b"
+        },
+        {
+          "name": "keyword.control.source.interfaces",
+          "match": "^\\s*(source|source-directory)\\b"
+        },
+        {
+          "name": "keyword.other.method.interfaces",
+          "match": "\\b(static|dhcp|manual|loopback|ppp|wvdial|dynamic|auto|v4tunnel|6to4)\\b"
+        },
+        {
+          "name": "keyword.other.address-family.interfaces",
+          "match": "\\b(inet|inet6|ipx|can)\\b"
+        },
+        {
+          "name": "constant.language.boolean.interfaces",
+          "match": "\\b(on|off|yes|no|true|false)\\b"
+        },
+        {
+          "name": "keyword.other.frame-type.interfaces",
+          "match": "\\b(802\\.2|802\\.3|EtherII|SNAP)\\b"
+        },
+        {
+          "name": "keyword.other.scope.interfaces",
+          "match": "\\b(global|site|link|host)\\b"
+        },
+        {
+          "name": "keyword.other.auth.interfaces",
+          "match": "\\b(none|simple|cryptographic|md5|hmac|sha1|sha256|sha512)\\b"
+        }
+      ]
+    },
+    "options": {
+      "patterns": [
+        {
+          "name": "keyword.other.option.address.interfaces",
+          "match": "^\\s*(address|netmask|broadcast|network|gateway|pointopoint)\\b"
+        },
+        {
+          "name": "keyword.other.option.hardware.interfaces", 
+          "match": "^\\s*(hwaddress|media|mtu)\\b"
+        },
+        {
+          "name": "keyword.other.option.dhcp.interfaces",
+          "match": "^\\s*(hostname|leasehours|leasetime|vendor|client|bootfile|server|hwaddr)\\b"
+        },
+        {
+          "name": "keyword.other.option.ppp.interfaces",
+          "match": "^\\s*(provider|unit|options)\\b"
+        },
+        {
+          "name": "keyword.other.option.ipx.interfaces",
+          "match": "^\\s*(frame|netnum)\\b"
+        },
+        {
+          "name": "keyword.other.option.ipv6.interfaces",
+          "match": "^\\s*(privext|accept_ra|autoconf|dhcp|request_prefix|ll-attempts|ll-interval|dad-attempts|dad-interval|preferred-lifetime|scope)\\b"
+        },
+        {
+          "name": "keyword.other.option.tunnel.interfaces",
+          "match": "^\\s*(endpoint|local|ttl)\\b"
+        },
+        {
+          "name": "keyword.other.option.can.interfaces",
+          "match": "^\\s*(bitrate|samplepoint|loopback|listenonly|triple|oneshot|berr)\\b"
+        },
+        {
+          "name": "keyword.other.option.metric.interfaces",
+          "match": "^\\s*(metric)\\b"
+        },
+        {
+          "name": "keyword.other.option.auth.interfaces",
+          "match": "^\\s*(authentication|password|algorithm)\\b"
+        },
+        {
+          "name": "keyword.other.option.wireless.interfaces",
+          "match": "^\\s*(wireless-[a-zA-Z0-9_-]+)\\b"
+        },
+        {
+          "name": "keyword.other.option.bond.interfaces",
+          "match": "^\\s*(bond-[a-zA-Z0-9_-]+|slaves)\\b"
+        },
+        {
+          "name": "keyword.other.option.bridge.interfaces",
+          "match": "^\\s*(bridge-[a-zA-Z0-9_-]+|bridge_ports|bridge_stp|bridge_fd|bridge_hello|bridge_maxage|bridge_pathcost|bridge_portprio)\\b"
+        },
+        {
+          "name": "keyword.other.option.vlan.interfaces",
+          "match": "^\\s*(vlan-raw-device|vlan_id)\\b"
+        },
+        {
+          "name": "keyword.other.option.pre-post.interfaces",
+          "match": "^\\s*(pre-up|up|post-up|pre-down|down|post-down)\\b"
+        }
+      ]
+    },
+    "interface-names": {
+      "patterns": [
+        {
+          "name": "entity.name.interface.ethernet.interfaces",
+          "match": "\\b(eth[0-9]+|en[a-zA-Z0-9]+|eno[0-9]+|ens[0-9]+|enp[0-9]+s[0-9]+)\\b"
+        },
+        {
+          "name": "entity.name.interface.wireless.interfaces", 
+          "match": "\\b(wlan[0-9]+|wl[a-zA-Z0-9]+|wifi[0-9]+)\\b"
+        },
+        {
+          "name": "entity.name.interface.loopback.interfaces",
+          "match": "\\b(lo|loopback)\\b"
+        },
+        {
+          "name": "entity.name.interface.ppp.interfaces",
+          "match": "\\b(ppp[0-9]+)\\b"
+        },
+        {
+          "name": "entity.name.interface.tun.interfaces",
+          "match": "\\b(tun[0-9]+|tap[0-9]+)\\b"
+        },
+        {
+          "name": "entity.name.interface.bond.interfaces",
+          "match": "\\b(bond[0-9]+)\\b"
+        },
+        {
+          "name": "entity.name.interface.bridge.interfaces",
+          "match": "\\b(br[0-9]+|bridge[0-9]*)\\b"
+        },
+        {
+          "name": "entity.name.interface.vlan.interfaces",
+          "match": "\\b([a-zA-Z0-9_-]+\\.[0-9]+)\\b"
+        }
+      ]
+    }
+  }
+} 

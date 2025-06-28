@@ -2,7 +2,8 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import fs from 'fs';
-const birdLang = JSON.parse(fs.readFileSync('./bird.tmLanguage.json', 'utf8'));
+const birdLang = JSON.parse(fs.readFileSync('./langs/bird.tmLanguage.json', 'utf8'));
+const interfacesLang = JSON.parse(fs.readFileSync('./langs/interfaces.tmLanguage.json', 'utf8'));
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
@@ -37,7 +38,7 @@ export default defineConfig({
 			],
 			expressiveCode: {
 				shiki: {
-					langs: [birdLang],
+					langs: [birdLang, interfacesLang],
 				},
 			},
 		}),
