@@ -1,13 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-
+import fs from 'fs';
+const birdLang = JSON.parse(fs.readFileSync('./bird.tmLanguage.json', 'utf8'));
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Routing Wiki',
 			description: '一篇关于路由的百科（或者手册）',
+			tableOfContents: { minHeadingLevel: 1, maxHeadingLevel: 3 },
 			social: [
 				{ 
 					icon: 'github', 
@@ -33,6 +35,11 @@ export default defineConfig({
 					link: 'https://bird.xmsl.dev/',
 				},
 			],
+			expressiveCode: {
+				shiki: {
+					langs: [birdLang],
+				},
+			},
 		}),
 	],
 });

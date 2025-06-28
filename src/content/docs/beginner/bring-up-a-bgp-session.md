@@ -78,13 +78,32 @@ BIRD_RUN_GROUP=bird
 #BIRD_ARGS=
 ```
 
-## 基本配置
+## 常量定义
+
+在配置文件的最开头，我们先把各类常量定义一下：
 
 ```bird2 showLineNumbers {2, 8, 15} 
 log syslog all;
 router id 10.0.0.1; # 需要替换成机器上的任意 IPv4 地址，或直接删掉该行让 BIRD 自动选择
 define ASN = 114514; # 定义本地使用的 ASN
 define OWN_IPv6 = [2001:db8::/48]; # 定义将要对外宣布的 IPv6 段
+```
+
+这里做了三件事：
+
+- 用 `log syslog all;` 把所有日志写到系统日志，方便排错。
+- 用 `router id` 指定一个全局 Router ID（如果不写，BIRD 会自动选一条本地 IPv4）。
+- 用 `define` 定义变量，后面写配置时重复用 `ASN` 和 `OWN_IPv6` 会更简洁。
+
+- `protocol device`：让 **BIRD** 能读取系统的网络接口信息
+- `protocol kernel`：用于将 **BIRD** 学到的路由写回内核路由表
+- `protocol static`：用于声明静态路由
+
+## 协议块
+
+接下来是核心的基础 `protocol` 配置，用来告诉 **BIRD** 如何和系统、路由表打交道。
+
+```bird2
 protocol device {
 };
 protocol kernel {
@@ -101,14 +120,19 @@ protocol static static_v6 {
 };
 ```
 
-这是 **BIRD** 配置的起手式。它主要包含以下内容：
+这里包含三个部分：
 
-- 定义 `router id`、`ASN` 和 `OWN_IPv6`（自有前缀）
-- `protocol device`：让 **BIRD** 能读取系统的网络接口信息
-- `protocol kernel`：用于将 **BIRD** 学到的路由写回内核路由表
-- `protocol static`：用于声明静态路由
+- `protocol device`：让 **BIRD** 能读取本机的网卡信息。
+- `protocol kernel`：把 **BIRD** 学到的路由写回 Linux 内核路由表（FIB），否则操作系统无法真正使用这些路由。
+- `protocol static`：在 **BIRD** 内声明你要对外宣布的静态前缀。
 
-注意看第 7–10 行，这里我们没有简单写 `export all`，而是使用了 `filter`。这是因为我们希望所有通过 BGP 学到的路由（通常是全网路由）在被系统使用时，都能以我们自己的地址作为源地址，而不是服务商分配的地址~~BGP不用自己的地址那还有什么意义~~。所以，这里通过 `krt_prefsrc` 参数显式指定了默认源地址。**请务必确保这个地址已在某个接口（如 dummy0）上绑定**，否则你会在日志里收获大量的 `RTNETLINK answers: Invalid argument` 报错。
+注意看第 7–10 行，这里我们没有简单写 `export all`，而是使用了 `filter`。这是因为我们希望所有通过 BGP 学到的路由（通常是全网路由）在被系统使用时，都能以我们自己的地址作为源地址，而不是服务商分配的地址~~BGP不用自己的地址那还有什么意义~~。所以，这里通过 `krt_prefsrc` 参数显式指定了默认源地址。
+
+:::caution
+
+**请务必确保这个地址已在某个接口（如 dummy0）上绑定**，否则你会在日志里收获大量的 `RTNETLINK answers: Invalid argument` 报错。
+
+:::
 
 `static` 协议用于在 BIRD 内定义要广播的路由，示例如下（引用自 [Soha 的新手教程](https://github.com/moesoha/bird-bgp-kickstart/blob/master/main.md#协议-protocol)）：
 
@@ -162,6 +186,8 @@ filter import_filter_v6 {
 
 此时你会发现，对方 IP 并不在你的本地子网里，但可以正常 `ping` 通，这种情况通常就需要配置 **多跳（multihop）** BGP。
 
+
+
 示例配置：
 
 ```bird2 {1-3, 7-8, 10}
@@ -184,20 +210,22 @@ protocol bgp upstream {
 protocol bgp upstream {
 ```
 
-定义了一个会话实例，`upstream` 是该实例的名字，可自定义。
+定义了一个BGP协议实例，`upstream` 是该协议实例的名字，可自定义。
 
 ```bird2 startLineNumber=2
     local fc00::2 as ASN;
     neighbor fd00::1 as 64512;
 ```
 
-指定了本地用于会话的 IP 和 ASN，以及对端（上游）的 IP 和 ASN。其中 `ASN` 是前面 `define` 过的常量。
+指定了本地用于会话的 IP 和 ASN，以及对端（上游）的 IP 和 ASN。其中 `ASN` 是[前面 `define` 过的常量](/beginner/bring-up-a-bgp-session/#常量定义)。
 
 ```bird2 startLineNumber=4
     multihop 2;
 ```
 
-表明这是一个多跳会话，`2` 表示 BGP 报文的 Hop Limit（最大跳数）。你可以使用 `mtr` 等工具测量到对端的实际网络跳数后设置一个合适的值。一般来说，这个值与实际相符即可，设置略大也没关系，但太大可能降低安全性。
+在网络里，**“跳”（hop）**指的是数据包从一台设备传到下一台网络设备（如路由器）的中转次数。如果你和对方 IP 在同一个网段，数据包可以直接送达，不需要中间路由器转发，这种情况就是**“一跳可达”**；如果不在同一个网段，就需要经过一个或多个路由器中转，这时就叫做**“多跳会话”**。
+
+`multihop 2;` 表示这是一个多跳会话，2 就是 BGP 报文的 Hop Limit（最大跳数）。你可以用 mtr 等工具先测量到对端的实际跳数，然后设置一个相符或稍大的值即可，太大没有必要，也可能带来安全风险。
 
 ```bird2 startLineNumber=7
         import filter import_filter_v6;
@@ -235,7 +263,7 @@ protocol bgp upstream {
     direct;
 ```
 
-表示本地 IP 和对端 IP 处于同一广播域（同段），此时 BGP 报文的 Hop Limit 默认就是 1。
+表示本地 IP 和对端 IP 一跳可达。
 
 ## 链路本地地址
 
