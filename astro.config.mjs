@@ -2,11 +2,15 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import fs from 'fs';
+import mermaid from 'astro-mermaid';
 const birdLang = JSON.parse(fs.readFileSync('./langs/bird.tmLanguage.json', 'utf8'));
 const interfacesLang = JSON.parse(fs.readFileSync('./langs/interfaces.tmLanguage.json', 'utf8'));
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
+		mermaid({
+			autoTheme: true,
+		}),
 		starlight({
 			title: 'Routing Wiki',
 			description: '一篇关于路由的百科（或者手册）',
