@@ -178,6 +178,30 @@ protocol bgp upstream {
 
 启用 **Graceful Restart**，可以在重启 BIRD 或重新加载配置时最大程度减少会话中断时间。
 
+同时，尽管多跳 BGP 便于商家管理，但 BGP 收到的路由可能会覆盖原本的路由，从而导致无法前往原本的 BGP 对端，造成断联，所以我们必须在 BIRD 里手动指定对端 BGP 地址的路由，具体方法如下：
+
+1. 用 `ip -6 route get <对端IP>` 获取原本的路由，如下所示：
+
+   ```shell "via fc00::1"
+   root@debian:~# ip route get fd00::1
+   fd00::1 from :: via fc00::1 dev ens3 src fc00::2 metric 1024 pref medium
+   root@debian:~#
+   ```
+
+   其中我们看到 `via fc00::1` 就表示着原本的下一跳路由。
+
+2. 在 BIRD 的 static 里面加入这条路有，如下所示：
+
+   ```diff lang="bird2" /(fd00::1/128|fc00::1)/
+   protocol static static_v6 {
+       ipv6;
+       route 2001:db8::/48 reject;
+   +   route fd00::1/128 via fc00::1;
+   };
+   ```
+
+   其中 `fd00::1/128` 是我们的对端地址，`fc00::1` 是我们在上一步获取的下一跳地址。
+
 ## 同段会话
 
 假设你从服务商获得的信息是：
@@ -212,6 +236,7 @@ protocol bgp upstream {
 ## 链路本地地址 ( link-local )
 
 在某些场景（例如 DN42 社区网络），对方可能不会给你公网或内网地址，而是直接给一个 `fe80` 开头的地址。这类 **链路本地地址（Link-local address）** 只在同一个网段/广播域有效，无法跨路由传播。
+
 也就是说，该地址只对与之直连的网卡有效，若需要使用 `fe80` 地址建立会话，就必须 **显式指定本地使用的网卡**。
 
 假设上游分配的地址为 `fe80::1`，且你的设备网卡为 `eth0`，示例配置如下：
