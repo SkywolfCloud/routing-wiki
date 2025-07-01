@@ -15,14 +15,13 @@ description: 从零开始搭建自己的BGP自治系统
 
 或
 
-- 一个ASN
+- 一个 ASN
 
-- 一段IP
+- 一段 IP
 
 - 一台有 BGP Session 的 VPS（或一个可用的 BGP Tunnel）
 
 以及
-
 
 - 较熟练的 Linux 使用能力
 - 自行搜索、解决部分问题的能力
@@ -30,4 +29,4 @@ description: 从零开始搭建自己的BGP自治系统
 
 另外，我建议你了解一下[如何用正确的方法询问问题](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)，这会对你探索和解决问题有非常大的帮助。
 
-我们默认使用的系统为Debian 12。 
+我们默认使用的系统为 Debian 12。
