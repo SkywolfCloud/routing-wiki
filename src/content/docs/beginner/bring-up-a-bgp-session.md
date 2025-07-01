@@ -3,9 +3,9 @@ title: 二、拉起一个BGP会话
 description: 快速与上游建立连接
 ---
 
-经过个把月的申请，你终于拿到了属于你的 IP 和 ASN，并且买好了支持 BGP Session 的 VPS，也在上面安装好了 BIRD。但面对服务商扔给你的 IP 和 ASN，你犯愁了：我该怎么配 BIRD 才能让它发出去，并只发我的路由呢？没关系，在这篇文章，你将会学到如何把你的 IP 段广播出去，完成你的人生中第一次广播！
+经过一番申请，你终于拿到了属于自己的 IP 和 ASN，并买好了支持 BGP Session 的 VPS，也在上面安装好了 BIRD。然而，当服务商把 IP 和 ASN 丢给你后，你可能一脸茫然：我该怎么配置 BIRD，才能让它正确广播、只发我自己的路由？没关系，在这篇文章，你将会学到如何把你的 IP 段广播出去，完成你人生中的第一次广播！
 
-考虑到大多数 BGP Player 当前主要持有 IPv6 段，本章示例将以 IPv6 为主，IPv4 的配置思路完全类同，可自行举一反三。
+考虑到大多数 BGP Player 当前主要持有 IPv6 段，本章示例将以 IPv6 为主，IPv4 的配置方法大同小异。
 
 假设你的 ASN 和 IP 信息如下：
 
@@ -17,7 +17,7 @@ description: 快速与上游建立连接
 
 # 配置 BIRD
 
-**BIRD** 安装好后，`/etc/bird/bird.conf` 默认会带有一份 200 多行的示例配置文件，里面展示了 BIRD 的多种用法。你可以先备份一份以备研究，但在这里我们先将其清空，从零开始编写。执行以下命令即可：
+BIRD 安装好后，`/etc/bird/bird.conf` 默认会带有一份 200 多行的示例配置文件，里面展示了 BIRD 的多种用法。你可以先备份一份以备研究，但在这里我们先将其清空，从零开始编写。执行以下命令即可：
 
 ```shell
 echo > /etc/bird/bird.conf
@@ -52,7 +52,7 @@ define OWN_IPv6 = [2001:db8::/48]; # 定义将要对外宣布的 IPv6 段
 
 ## 协议块
 
-接下来是核心的基础 `protocol` 配置，用来告诉 BIRD 如何和系统、路由表打交道。
+接下来是核心的基础 `protocol` 配置，用来告诉 BIRD 如何和系统打交道。
 
 ```bird2
 protocol device {
@@ -304,7 +304,7 @@ protocol kernel {
 
 ```bird2
 log syslog all;
-router id 10.0.0.1; # 需要替换成机器上的任意 IPv4 地址，或直接删掉该行让 BIRD 自动选择
+router id 10.0.0.1; # 定义 Router ID
 define ASN = 114514; # 定义本地使用的 ASN
 define OWN_IPv6 = [2001:db8::/48]; # 定义将要对外宣布的 IPv6 段
 protocol device {
