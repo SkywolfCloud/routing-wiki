@@ -52,6 +52,9 @@ export default defineConfig({
         shiki: {
           langs: [birdLang, interfacesLang],
         },
+        defaultProps: {
+          wrap: true,
+        },
       },
     }),
   ],

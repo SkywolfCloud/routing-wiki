@@ -3,9 +3,11 @@ title: 一、开始之前
 description: 介绍 BGP 与 Bird 的基础知识
 ---
 
-# 什么是 BGP
+import { Aside } from "@astrojs/starlight/components";
 
 当你点开这篇文章时，你可能对 BGP 只有一个模糊的印象，但没关系，我们先把概念重新说一遍~~虽然很多时候你未必真用得上~~。
+
+# 什么是 BGP
 
 以下文段来自[维基百科](https://zh.wikipedia.org/wiki/%E8%BE%B9%E7%95%8C%E7%BD%91%E5%85%B3%E5%8D%8F%E8%AE%AE)
 
@@ -34,15 +36,13 @@ description: 介绍 BGP 与 Bird 的基础知识
 - `src 10.2.3.1` 当这跳转发的来源是本机的时候，采用的源地址 IP
 - `matric 32` 路由度量值，存在多个对同一 IP 段的路由时用来决定选择哪条路由来使用，matric 越小路由优先级越高
 
-:::tip[额外拓展]
-
-在 Linux 内：
-
-- 如果同时有 `dev` 和 `via`，系统会根据 ARP 表把目标 MAC 改写成下一跳的 MAC（若 ARP 表中没有，则会通过 `dev` 指定的接口发起 ARP 查询）。
-- 如果只有 `dev` 没有 `via`，则直接用 ARP 表查找目标地址的 MAC（同样若无记录则发起 ARP），然后通过指定接口转发。
-- 如果只有 `via` 没有 `dev`，会递归查询直至找到包含 `dev` 的下一跳，然后按上面规则转发。
-
-:::
+<Aside type="tip" title="额外拓展">
+  在 Linux 内： - 如果同时有 `dev` 和 `via`，系统会根据 ARP 表把目标 MAC
+  改写成下一跳的 MAC（若 ARP 表中没有，则会通过 `dev` 指定的接口发起 ARP
+  查询）。 - 如果只有 `dev` 没有 `via`，则直接用 ARP 表查找目标地址的
+  MAC（同样若无记录则发起 ARP），然后通过指定接口转发。 - 如果只有 `via` 没有
+  `dev`，会递归查询直至找到包含 `dev` 的下一跳，然后按上面规则转发。
+</Aside>
 
 但你可能不知道的是，在路由器内部，路由表其实分成两张：在大多数商业路由器里，路由表分为 **RIB（Routing Information Base，路由信息库）** 和 **FIB（Forwarding Information Base，转发表）**。RIB 汇聚来自各种协议和配置的路由信息，经过选路后，只有最优路由会被安装到 FIB，供硬件用于实际数据转发。下面这张图就展示了 RIB 到 FIB 的过程。本教程中，Bird 就负责管理 RIB，而 Linux 内核就是我们的转发表 FIB。
 
@@ -71,11 +71,9 @@ graph TD
 
 # ASN、前缀、IRR 与 RPKI
 
-:::note
-
-本教程不包含如何申请 ASN 与 IP 的具体流程，请自行搜索 LIR 相关的申请教程。
-
-:::
+<Aside type="note">
+  本教程不包含如何申请 ASN 与 IP 的具体流程，请自行搜索 LIR 相关的申请教程。
+</Aside>
 
 你打算购买自己的 ASN 和 IP ，开始自己的 BGP 生涯。但在你搜索的时候，你对它们的关系陷入了疑惑。这两个有什么从属关系吗？如果没有从属关系，那 IP 广播又为什么会用到 ASN 呢？同时你也看到了一个新词：前缀。前缀又是什么呢？
 

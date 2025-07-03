@@ -3,7 +3,11 @@ title: 二、拉起一个BGP会话
 description: 快速与上游建立连接
 ---
 
-经过一番申请，你终于拿到了属于自己的 IP 和 ASN，并买好了支持 BGP Session 的 VPS，也在上面安装好了 BIRD。然而，当服务商把 IP 和 ASN 丢给你后，你可能一脸茫然：我该怎么配置 BIRD，才能让它正确广播、只发我自己的路由？没关系，在这篇文章，你将会学到如何把你的 IP 段广播出去，完成你人生中的第一次广播！
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+经过一番申请，你终于拿到了属于自己的 IP 和 ASN，并买好了支持 BGP Session 的 VPS，也在上面安装好了 BIRD。然而，当服务商把 IP 和 ASN 丢给你后，你可能一脸茫然：我该怎么配置 BIRD，才能让它正确广播、只发我自己的路由？
+
+没关系，在这篇文章，你将会学到如何把你的 IP 段广播出去，完成你人生中的第一次广播！
 
 考虑到大多数 BGP Player 当前主要持有 IPv6 段，本章示例将以 IPv6 为主，IPv4 的配置方法大同小异。
 
@@ -118,11 +122,10 @@ filter import_filter_v6 {
 
 ## 多跳会话
 
-:::note
-
-尽管多跳会话很复杂，但是它是大部分 BGP Session 采用的模式，所以我们放在最前面讲。
-
-:::
+<Aside type="note">
+  尽管多跳会话很复杂，但是它是大部分 BGP Session
+  采用的模式，所以我们放在最前面讲。
+</Aside>
 
 假设你从服务商获得的信息是：
 
@@ -285,16 +288,18 @@ root@debian:~#
 
 ## 创建虚拟网卡
 
-以 Debian 为例，你可以在 `/etc/network/interfaces` 中添加如下配置（这里以前面示例的前缀为例）：
+<Tabs syncKey="network">
+<TabItem label="Debian interfaces">
+
+在 `/etc/network/interfaces` 中添加如下配置（这里以前面示例的前缀为例）：
 
 ```interfaces
+# /etc/network/interfaces
 iface dummy0 inet6 static
     address 2001:db8::1/128
     pre-up ip link add dummy0 type dummy
     post-down ip link del dummy0 type dummy
 ```
-
-这里我们创建了一个名为 `dummy0` 的虚拟网卡，并为其分配了一个地址 `2001:db8::1/128`。注意这里使用的是 `/128` 而不是 `/64` 或 `/48`，因为我们只需要绑定这个段内的**一个**地址来宣布路由，机器本身并不需要在该网卡上与其他设备通信，也就不需要整个子网。
 
 保存后，执行 `ifup dummy0` ：
 
@@ -305,6 +310,35 @@ root@debian:~#
 ```
 
 如果如上所示，`dummy0` 启动时没有任何错误，那么虚拟网卡已经成功创建。
+
+</TabItem>
+<TabItem label="通用 ip 命令">
+
+使用以下命令手动创建虚拟网卡和分配地址（这里以前面示例的前缀为例）：
+
+```shell
+# 创建 dummy0 虚拟网卡
+ip link add dummy0 type dummy
+
+# 启动网卡
+ip link set dummy0 up
+
+# 分配 IPv6 地址
+ip addr add 2001:db8::1/128 dev dummy0
+```
+
+要让配置在重启后保持，可以将上述命令添加到 `/etc/rc.local` 或创建 systemd 服务。
+
+要删除虚拟网卡，使用：
+
+```shell
+ip link del dummy0
+```
+
+</TabItem>
+</Tabs>
+
+这里我们创建了一个名为 `dummy0` 的虚拟网卡，并为其分配了一个地址 `2001:db8::1/128`。注意这里使用的是 `/128` 而不是 `/64` 或 `/48`，因为我们只需要绑定这个段内的**一个**地址来宣布路由，机器本身并不需要在该网卡上与其他设备通信，也就不需要整个子网。
 
 ## 改变收到路由的源地址
 
@@ -323,11 +357,11 @@ protocol kernel {
 
 其中 `krt_prefsrc` 就是当包是从你的机器开始发出（比如你机器上进行的 `curl`）时，你使用的源地址，这里我们设置为 `2001:db8::1`。
 
-:::caution
-
-**请务必确保这个地址已在某个接口（如 dummy0）上绑定**，否则你会在日志里收获大量的 `RTNETLINK answers: Invalid argument` 报错。
-
-:::
+<Aside type="caution">
+  **请务必确保这个地址已在某个接口（如
+  dummy0）上绑定**，否则你会在日志里收获大量的 `RTNETLINK answers: Invalid
+  argument` 报错。
+</Aside>
 
 # 全部配置
 

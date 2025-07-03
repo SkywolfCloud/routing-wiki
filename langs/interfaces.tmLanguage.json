@@ -276,9 +276,59 @@
           "name": "keyword.other.option.vlan.interfaces",
           "match": "^\\s*(vlan-raw-device|vlan_id)\\b"
         },
-        {
-          "name": "keyword.other.option.pre-post.interfaces",
-          "match": "^\\s*(pre-up|up|post-up|pre-down|down|post-down)\\b"
+                {
+          "match": "^\\s*(pre-up|up|post-up|pre-down|down|post-down)\\s+(.*?)$",
+          "captures": {
+            "1": {
+              "name": "keyword.other.option.pre-post.interfaces"
+            },
+            "2": {
+              "name": "source.shell.embedded.interfaces",
+              "patterns": [
+                {
+                  "name": "support.function.shell.interfaces",
+                  "match": "\\b(ip|ifconfig|route|iptables|tc|brctl|vconfig|modprobe|insmod|rmmod|echo|cat|grep|awk|sed|cut|sort|uniq|head|tail|wc|find|xargs|chmod|chown|mkdir|rm|mv|cp|ln|tar|gzip|gunzip)\\b"
+                },
+                {
+                  "name": "entity.name.tag.shell.interfaces",
+                  "match": "\\b(link|add|del|set|show|addr|type|dummy|bridge|vlan|bond|up|down)\\b"
+                },
+                {
+                  "name": "string.quoted.double.shell.interfaces",
+                  "begin": "\"",
+                  "end": "\"",
+                  "patterns": [
+                    {
+                      "name": "constant.character.escape.shell.interfaces",
+                      "match": "\\\\."
+                    }
+                  ]
+                },
+                {
+                  "name": "string.quoted.single.shell.interfaces",
+                  "begin": "'",
+                  "end": "'"
+                },
+                {
+                  "name": "variable.other.shell.interfaces",
+                  "match": "\\$[a-zA-Z_][a-zA-Z0-9_]*|\\$\\{[^}]+\\}"
+                },
+                {
+                  "name": "keyword.operator.shell.interfaces",
+                  "match": "(\\|\\||&&|\\||&|;|>>|>|<<|<)"
+                },
+                {
+                  "name": "constant.numeric.shell.interfaces",
+                  "match": "\\b[0-9]+\\b"
+                },
+                {
+                  "name": "comment.line.shell.interfaces",
+                  "begin": "#",
+                  "end": "$"
+                }
+              ]
+            }
+          }
         }
       ]
     },

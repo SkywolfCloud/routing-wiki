@@ -1,0 +1,93 @@
+---
+title: 三、与他人连接
+description: 连接同行与下游
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+慢慢地，你逐渐认识了一些同好。他们有的说要跟你 peer，有的说要当你的下游，有的说可以当你的上游，这时你蒙了：peer、下游、上游是什么？我又该怎么去连接他们，跟他们收发路由？
+
+没关系，在这篇文章，你将会了解 BGP 中的一些基本概念，并且学习如何接自己的上下游与同行！
+
+# 概念解析
+
+## 上下游与对等
+
+在网络连接中，作为一个 AS，别人相对于你的角色主要有三种：
+
+第一种是**上游（Upstream）**，比如上一章中你的服务商。上游通常而言会给你发 BGP 的全表，也就是整个互联网的路由，让你能够接入互联网，而你只向上游发你和你下游的路由。通常而言，上游会需要你付费购买他们的服务（如 IP Transit），但出于学术、爱好或其他目的也会提供免费服务（比如[HE](https://he.net)的 v6 transit，旨在推进 IPv6 覆盖~~以及在 IPv6 时代争夺 T1 地位~~。
+
+第二种是**下游（Downstream）**，比如你之于你的服务商。你的下游会给你发他和他下游的路由，而你需要提供给他们全表。
+
+第三种是**对等（Peer）**，比如 Google 之于 Microsoft。peer 之间建立连接的主要目的是减少延迟（比如大家都在 IX，直接通过 IX 交换而不通过上游的骨干网），以及省钱，所以 peer 之间一般会互相发自己及下游的表。peer 行为通常见于 IX（Internet Exchange，互联网交换中心），这类集中设施可以便于一个区域内的各个 AS 之间互联。IX 在国外是十分常见的基础设施，例如 SFMIX，DE-CIX，EIE（Equinix Internet Change），在国内则有前海 IX、杭州 IX 等新兴力量。
+
+Peer 有两层含义，一种是名词，或者说是在商业层面上的**对等**，具体见上；一种是在协议层面上的**对等**，为动词，也就是建立 BGP 连接，但通常建立的都是 peer 关系。
+
+## Tier 1,2,3
+
+> 您们好。
+> 我们公司实际上是一级运营商(Tier 1 – AS 174)，在全球包括美洲、欧洲、亚洲超过 199 个市场（40 多个国家）都设有节点。在多个国家都有接点数据中心。
+>
+> ......
+
+不知道你有没有收到过，这是 Cogent 的一封推广邮件。这里面出现了一个名词：一级运营商。那什么是一级运营商呢？
+
+以下内容抄自[维基百科](https://zh.wikipedia.org/wiki/Tier_1%E7%BD%91%E7%BB%9C)
+
+> **Tier 1 网络**（Tier 1 network）是一种仅通过免费[对等互联](https://zh.wikipedia.org/wiki/Peering)（settlement-free interconnection、settlement-free peering）即可到达[互联网](https://zh.wikipedia.org/wiki/互联网)所有其他网络的[网际协议](https://zh.wikipedia.org/wiki/网际协议)网络。
+>
+> ......
+>
+> 最合理的定义是，Tier 1 网络供应商永远不会支付转发费用，因为所有 Tier 1 网络供应商的集合都向各地所有较低级别的网络供应商出售转发服务，而且因为：
+>
+> - 所有 Tier 1 网络供应商都与全球其他所有 Tier 1 网络供应商对等互联，
+> - 对等协议允许访问所有转发客户，这意味着：
+> - Tier 1 网络包含所有连接到全球互联网的主机。
+
+简单来说，Tier 1 就是网络的最上层，它不需要买 IP Transit 就能到达别人，它跟别人都是**免费**peer，如 NTT、PCCWG、Lumen。而比 Tier 1 低一点的是区域 Tier 1（Regional Tier 1），例如中国电信和 Singtel，它们在本地像 Tier 1 一样免费 peer，但在非本地区域需要购买 IP Transit 或 Paid Peer。
+
+而比 Tier 1 低一点的，是 Tier 2，也就是跟一些人免费 peer 了，但跟一些人还是需要买 IP Transit 或付费 peer（Paid Peer），比如前面提到的 HE、Cogent。严格来讲，区域 Tier 1 也是 Tier 2。Tier 2 的定义其实比较大，通常只要你参加了一些 IX，你就可以算作是 Tier 2 了。
+
+比 Tier 2 更低的，是 Tier 3，这种网络跟其他网络只能通过付费途径到达，具体来说就是一些 IDC、公司或 Player 了。
+
+# AS-SET
+
+前文我们说过，验证一个 IP 是否授权一个 AS 广播靠的是路由对象。那如何验证一个 AS 是否包括一个 AS 作为它的下游呢？那就要靠 AS-SET 了。
+
+顾名思义，AS-SET 是 AS 的 SET（集合）。当你要求某个 IP Transit 供应商使用这个 AS-SET 进行过滤，就意味着只有这个 AS-SET 下的 ASN 的 IP 才可以通过这个 IP Transit 广播（通过筛选路由对象），有效地防止了路由泄露。AS-SET 也是被记录在 IRR 里，因此前文提到的 IRR 都可以创建 AS-SET。如果你要带下游，你就要把你的下游的 ASN 放进你的 AS-SET，才能让你的上游确认 ta 是你的下游。
+
+验证谁是我下游的问题解决了，但怎么验证谁能当我上游呢？目前只能靠信用来解决，这也导致了通过伪造起源 AS 进行的盗播事件时有发生。目前，一项叫 ASPA（Autonomous System Relationship Authorization）的技术正在起草其 RFC，OpenBGPD 也已经提供了实现。我们可以期待，未来该技术普及，互联网将更加干净，安全。
+
+# 过滤器设计
+
+正如我们前面所言， 上下游和 peer 所需要和发的路由是不一样的：上游发全表，收我们自己和我们下游；peer 发他们自己和他们下游，收我们自己和我们下游；下游发他们自己和下游，收全表。所以，接这些的关键，就是设计良好的过滤器，使得他们发来的路由，都能按照正确的方式进行处理。
+
+## BGP Community
+
+想象一下你的快递，如果上面不贴那个面单，也不让你写写画画，是不是分拣、运送就会难得多？同样的，对于一堆路由，如果没有办法让我们给它们“贴面单”，那我们要处理也会困难得多。所以，工程师们为路由添加了 BGP Community 属性，让我们能够便捷地区分路由，从而知道更多的信息或执行不同的策略。
+
+BGP Community 分三类：
+
+- 普通 Community 长 4 个字节，前两个字节为 ASN，后 2 个字节为标识符，例如 `(7720, 1)`。这种 Community 是最普遍的 Community，但是由于它硬性要求 ASN 为两个字节，所以我们使用不了。
+- Extended Community （扩展社区）长 8 个字节，为一个八字节的值，前二字节为类型，后六字节可以为一个 2 字节 ASN+一个 4 字节的值，也可以为一个 4 字节的 ASN 或 IP+一个 2 字节的值，在鸟内一般表示为`(type,administrator,value)`。Extended Community 一般用于 MPLS VPN 内，我们基本用到。
+- BGP Large Community（大型社区）长 12 个字节，前四字节为 ASN，后八个字节分别为数据 1 和数据 2，各 4 个字节，在鸟内一般表示为`(4byte ASN,4byte value,4byte value)`，。它被开发的主要原因是因为 4 字节 ASN 不能用于普通的 BGP 社区，也因此它会成为我们接下来最主要使用的 BGP Community，毕竟我们没有别的可选。
+
+对于我们而言，最主要用到的是普通 Community 和 Large Community。普通 Community 更多是用来操纵我们的路由，Large Community 才真正是为我们网络用来实现功能的。
+
+<Aside type="tips">
+  [RFC8195 Use of BGP Large
+  Communities](https://datatracker.ietf.org/doc/html/rfc8195) 记录着一些Large
+  Community的用法，有兴趣可以去翻一下。
+</Aside>
+
+## role
+
+## 上游
+
+## Peer
+
+## 下游
+
+## 调用
+
+# 全部配置
