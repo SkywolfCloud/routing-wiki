@@ -76,18 +76,35 @@ BGP Community 分三类：
 
 <Aside type="tips">
   [RFC8195 Use of BGP Large
-  Communities](https://datatracker.ietf.org/doc/html/rfc8195) 记录着一些Large
+  Communities](https://www.rfc-editor.org/rfc/rfc8195.html) 记录着一些Large
   Community的用法，有兴趣可以去翻一下。
 </Aside>
 
-## role
+## Community 设计
+
+假设我们的ASN是 AS114514，下面我们来进行一些简单的Community 设计（全部使用Large Community）：
+
+| Community      | 意思                   |
+| -------------- | ---------------------- |
+| (114514, 1, 1) | 该路由来自上游         |
+| (114514, 1, 2) | 该路由来自 Peer        |
+| (114514, 1, 3) | 该路由来自自身（静态） |
+| (114514, 1, 4) | 该路由来自下游         |
+
+这里只是简单的设计了一些信息类 Community，操作类 Community 我们暂不涉及，详情可以参考 [小狼的教程](https://littlewolf.moe/bgp/100/)（TODO）。
 
 ## 上游
+
+
 
 ## Peer
 
 ## 下游
 
 ## 调用
+
+# role
+
+正常来讲，要做到如上的区分，我们需要用Community来标记哪些路由是上游的，哪些是客户的，哪些是peer的，再用一堆过滤器去筛选它。但这太麻烦了，还容易出错！于是，有人提出了[RFC9234](https://www.rfc-editor.org/rfc/rfc9234.html)，用内置的属性来进行区分，而这项RFC也在 BIRD 内得到了支持。在下面，我们写一版使用这种方式进行过滤的配置。
 
 # 全部配置
