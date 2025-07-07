@@ -5,7 +5,7 @@ import fs from "fs";
 import mermaid from "astro-mermaid";
 import rehypeExternalLinks from "rehype-external-links";
 const birdLang = JSON.parse(
-  fs.readFileSync("./langs/bird.tmLanguage.json", "utf8")
+  fs.readFileSync("./langs/bird2.tmLanguage.json", "utf8")
 );
 const interfacesLang = JSON.parse(
   fs.readFileSync("./langs/interfaces.tmLanguage.json", "utf8")
@@ -37,6 +37,7 @@ export default defineConfig({
               label: "二、拉起一个BGP会话",
               slug: "beginner/bring-up-a-bgp-session",
             },
+            { label: "三、与他人连接", slug: "beginner/connect-with-others" },
             { label: "配置客户端", slug: "beginner/player" },
             { label: "IDC配置", slug: "beginner/idc" },
             { label: "多地部署", slug: "beginner/multi-location" },
