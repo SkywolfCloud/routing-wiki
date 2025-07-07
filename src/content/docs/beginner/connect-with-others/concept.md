@@ -1,6 +1,6 @@
 ---
 title: 概念解析
-description: 解析多人连接中需要的概念 
+description: 解析多人连接中需要的概念
 ---
 
 在我们开始学习之前，先来了解一些多人连接中需要的概念。
@@ -51,5 +51,28 @@ Tier 3 是最下层，需付费通过上游或 Peer 转发流量，典型是 IDC
 前文我们说过，验证一个 IP 是否授权一个 AS 广播靠的是路由对象。那如何验证一个 AS 是否包括一个 AS 作为它的下游呢？那就要靠 AS-SET 了。
 
 顾名思义，AS-SET 是 AS 的 SET（集合）。当你要求某个 IP Transit 供应商使用这个 AS-SET 进行过滤，就意味着只有这个 AS-SET 下的 ASN 的 IP 才可以通过这个 IP Transit 广播（通过筛选路由对象），有效地防止了路由泄露。AS-SET 也是被记录在 IRR 里，因此前文提到的 IRR 都可以创建 AS-SET。如果你要带下游，你就要把你的下游的 ASN 放进你的 AS-SET，才能让你的上游确认 ta 是你的下游。
+
+一个 AS-SET 的经典示例：
+
+```rpsl
+as-set:         AS13335:AS-CLOUDFLARE
+descr:          Cloudflare, Inc.
+                101 Townsend Street, San Francisco
+                California 94107, US
++               1-650-319-8930
+members:        AS13335,AS13335:AS-CUSTOMERS,AS132892,AS133877,AS202623,AS209242,AS394536
+remarks:        ---------------
+                Cloudflare announces its ASNs via many upstream ASNs
+                All Cloudflare abuse reporting can be done via
+                https://www.cloudflare.com/abuse
+                ---------------
+admin-c:        ADMIN2521-ARIN
+tech-c:         ADMIN2521-ARIN
+tech-c:         CLOUD146-ARIN
+mnt-by:         MNT-CLOUD14
+created:        2023-04-05T08:58:54Z
+last-modified:  2025-01-16T19:57:46Z
+source:         ARIN
+```
 
 验证谁是我下游的问题解决了，但怎么验证谁能当我上游呢？目前只能靠信用来解决，这也导致了通过伪造起源 AS 进行的盗播事件时有发生。目前，一项叫 ASPA（Autonomous System Relationship Authorization）的技术正在起草其 RFC，OpenBGPD 也已经提供了实现。我们可以期待未来该技术能够普及，互联网将更加干净，安全。

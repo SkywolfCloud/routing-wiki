@@ -2,6 +2,7 @@
 title: 过滤器设计
 description: 设计我们需要用到的过滤器
 ---
+
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
 正如我们前面所言， 上下游和 peer 所需要和发的路由是不一样的：上游发全表，收我们自己和我们下游；peer 发他们自己和他们下游，收我们自己和我们下游；下游发他们自己和下游，收全表。所以，接这些的关键，就是设计良好的过滤器，使得他们发来的路由，都能按照正确的方式进行处理。
@@ -23,7 +24,6 @@ BGP Community 分三类：
   Communities](https://www.rfc-editor.org/rfc/rfc8195.html) 记录着一些Large
   Community的用法，有兴趣可以去翻一下。
 </Aside>
-
 
 ## Community 设计
 
@@ -110,7 +110,6 @@ BGP Community 分三类：
 <Aside type="caution">
   这里并未给出包含所有函数的自洽的完整实现，具体完整实现在[Lab示例](#Lab示例)处！
 </Aside>
-
 
 ## 上游
 
@@ -303,7 +302,6 @@ protocol bgp upstream {
 这里我们使用 `where` 关键字，快捷地调用了函数作为我们的过滤器，从而使代码更简洁。
 
 {/* prettier-ignore */}
-
 <Aside type="tip">
   `where`关键字后面实际上接的是一个表达式，比如你可以写：
   ```bird2
@@ -311,7 +309,6 @@ protocol bgp upstream {
   ```
   来导出所有来自设备、静态路由或 RIP 的路由。
 </Aside>
-
 
 ## IRR
 
@@ -345,5 +342,4 @@ function irr_check(string as_set) -> bool {
   的`include`是文本拼合，所以如果报错可能会在一个不存在的行数。也请注意不要出现循环引用问题。
 </Aside>
 
-
-# 
+#
