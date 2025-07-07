@@ -37,7 +37,16 @@ export default defineConfig({
               label: "二、拉起一个BGP会话",
               slug: "beginner/bring-up-a-bgp-session",
             },
-            { label: "三、与他人连接", slug: "beginner/connect-with-others" },
+            {
+              label: "三、与他人连接",
+              items: [
+                { label: "简介", slug: "beginner/connect-with-others" },
+                "beginner/connect-with-others/concept",
+                "beginner/connect-with-others/filters",
+                "beginner/connect-with-others/lab",
+                "beginner/connect-with-others/role",
+              ],
+            },
             { label: "配置客户端", slug: "beginner/player" },
             { label: "IDC配置", slug: "beginner/idc" },
             { label: "多地部署", slug: "beginner/multi-location" },

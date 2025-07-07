@@ -1,0 +1,135 @@
+---
+title: 附录：Role
+description: 简介 BIRD 中新引入的 role 的用法   
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+正常来讲，要做到如上的区分，我们需要用 Community 来标记哪些路由是上游的，哪些是客户的，哪些是 peer 的，再用一堆过滤器去筛选它，就像我们上面勇了。但这太麻烦了，还容易出错！于是，有人提出了[RFC9234](https://www.rfc-editor.org/rfc/rfc9234.html)，用内置的属性来进行区分，而这项 RFC 也在 BIRD 内得到了支持。在下面，我们写一版使用这种方式进行过滤的配置。
+
+前述不变，这里只放 BGP 配置：
+
+<Tabs>
+
+<TabItem label="Upstream">
+
+```bird2 {5}
+protocol bgp upstream {
+    local fd00::1:1 as 65001;
+    neighbor fd00::1:2 as 65002;
+    direct;
+    local role provider;
+    ipv6 {
+        import all;
+        export all;
+    };
+    graceful restart;
+};
+```
+
+</TabItem>
+
+<TabItem label="Downstream">
+
+```bird2 {5.16}
+protocol bgp bgp_upstream {
+    local fd00::1:2 as 65002;
+    neighbor fd00::1:1 as 65001;
+    direct;
+    local role customer;
+    ipv6 {
+        import all;
+        export all;
+    };
+    graceful restart;
+};
+protocol bgp bgp_peer {
+    local fd00::2:1 as 65002;
+    neighbor fd00::2:2 as 65003;
+    direct;
+    local role peer;
+    ipv6 {
+        import all;
+        export all;
+    };
+    graceful restart;
+};
+
+```
+
+</TabItem>
+
+<TabItem label="Peer">
+
+```bird2 {5}
+protocol bgp bgp_peer {
+    local fd00::2:2 as 65003;
+    neighbor fd00::2:1 as 65002;
+    direct;
+    local role peer;
+    ipv6 {
+        import all;
+        export all;
+    };
+    graceful restart;
+};
+```
+
+</TabItem>
+
+</Tabs>
+
+可以看到，我们在这里没有用任何我们之前定义的函数，但是我们一样能够实现不漏表，就像上面那样。为什么呢？
+
+让我们随便抽一条路由来看看：
+
+```bird2 {9}
+2001:db8:3::/48      unicast [bgp_peer 01:25:55.700] * (100) [AS65003i]
+    via fd00::2:2 on ens4
+    Type: BGP univ
+    BGP.origin: IGP
+    BGP.as_path: 65003
+    BGP.next_hop: fd00::2:2 fe80::526e:69ff:fe00:300
+    BGP.local_pref: 100
+    BGP.large_community: (65003, 1, 3)
+    BGP.otc: 65003
+```
+
+可以看到，第九行有一个 `BGP.otc` 这个就是 RFC9234 中新增的路由属性：只发给客户（Only to Customer），带上这个属性的路由将会只发给自己的客户，而不是上游或者 peer。
+
+让我们摘取一段（经过翻译的）RFC 原文，位置在[这里](https://www.rfc-editor.org/rfc/rfc9234.html#name-bgp-only-to-customer-otc-at)：
+
+> 好的，我帮你把这段关于 **BGP Only to Customer (OTC) 属性** 的 RFC 段落翻译成简体中文，并保持术语和逻辑准确：
+>
+> ---
+>
+> **5. BGP 仅向客户（OTC）属性**
+>
+> OTC 属性是 UPDATE 报文中的一个可选可传递（Optional Transitive）的路径属性，属性类型代码（Attribute Type Code）为 35，长度为 4 个八位字节。该属性的目的是强制执行一条路由一旦被发送给客户（Customer）、对等体（Peer）或路由服务器客户端（RS-Client，见 3.1 节定义），后续只能再次发送给客户。属性值是一个由下述过程确定的自治系统号（ASN）。
+>
+> **接收端的处理过程：**
+>
+> - 如果从客户或 RS-Client 收到带有 OTC 属性的路由，则视为路由泄漏（Route Leak），**必须**视为不合法（不可用）（见第 3 节）。
+> - 如果从对等体（即具有对等角色的远程 AS）收到带有 OTC 属性的路由，且属性值不等于该远程（即对等体）AS 的号码，则视为路由泄漏，**必须**视为不合法。
+> - 如果从上游（Provider）、对等体或路由服务器（RS）收到路由，且未携带 OTC 属性，则**必须**在该路由上添加 OTC 属性，值为远程 AS 的号码。
+>
+> **发送端的处理过程：**
+>
+> - 如果要将路由发送给客户、对等体或 RS-Client（当发送者是 RS 时），且该路由未携带 OTC 属性，则在发送时**必须**添加 OTC 属性，值为本地 AS 的号码。
+> - 如果路由已经包含 OTC 属性，则**不得**将其传播给上游（Provider）、对等体或 RS。
+>
+> 上述过程既实现了本地 AS 的泄漏防护，也支持多跳下游的泄漏检测与缓解。在本地 AS 层面，OTC 属性的存在表明该路由是从对等体、上游或 RS 学到的，只能向客户发布。同一个 OTC 属性也为后续的 AS 检测路由泄漏提供了依据。例如，如果一个 AS 在向对等体发送路由时设置了 OTC 属性，而该路由后续被某个合规的 AS 从客户处收到，则根据 OTC 属性可检测到该路由已被泄漏。
+>
+> OTC 属性可以在远程 AS 出口处设置，也可以在本地 AS 入口处设置——即如果远程 AS 不符合本规范，则本地 AS 在属性缺失时需要补加 OTC 属性。在这两种场景下，OTC 值是相同的。这种机制提高了方案的鲁棒性，并对早期采用者有利。
+>
+> 如果 OTC 属性的长度不是 4，则视为格式错误（malformed）。对于携带格式错误 OTC 属性的 UPDATE 报文，**应**按照 [RFC7606] 的“视同撤销（treat-as-withdraw）”方法处理。
+>
+> 本文件指定的 BGP 角色协商和基于 OTC 属性的过程，**不推荐**在自治系统联盟（AS Confederation，见 [RFC5065]）内部的自治系统之间使用。如果从 AS Confederation 出口处添加了 OTC 属性，其值**必须**等于该 AS Confederation 的标识符（Identifier）。此外，从 AS Confederation 出口处发送的 UPDATE 报文**不得**包含值为除 AS Confederation Identifier 之外的任何成员 AS 号的 OTC 属性。
+>
+> 本文件中定义的过程，可在使用私有 ASN 的场景下（如数据中心网络 [RFC7938] 或存根客户）使用，但相关细节不在本文件范围内。从面向互联网的 ASN 出口时，OTC 属性**不得**包含除该 ASN 之外的其他值。
+>
+> 一旦设置了 OTC 属性，**必须**保持不变（这同样适用于 AS Confederation）。
+>
+> 上述入站和出站过程仅适用于地址族 AFI 1（IPv4）和 AFI 2（IPv6），且 SAFI 均为 1（单播）。默认情况下**不得**用于其他地址族，运营者**不得**有能力修改本节定义的过程。
+
+可能有的人会问，既然有了 role，那我们是不是可以不用上文的函数了呢？当然不行，因为你还需要函数去做一些除了来源之外的检查，比如 IRR、地址长度等等。而且，我们也需要函数提供一个平台来让我们添加 community，从而更好地管理我们的路由。所以，你可以把 role 和函数融合在一起来增强你的过滤的可靠性，但不要只依靠 role。
