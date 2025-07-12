@@ -18,6 +18,8 @@ graph LR
 
 ```
 
+# 全部配置
+
 这里我们将一些常量和定义分到了 `utils.conf`，将函数整理到了 `functions.conf`并按照对应机器的 ASN 进行更改，省略 `irr.conf`
 
 <Tabs>
@@ -310,7 +312,7 @@ protocol bgp peer {
 
 </Tabs>
 
-结果：
+# 结果
 
 <Tabs>
   <TabItem label="Upstream">
@@ -321,7 +323,7 @@ BIRD 2.17.1 ready.
 Table master6:
 2001:db8:1::/48      unreachable [static_v6 13:08:09.860] * (200)
 2001:db8:2::/48      unicast [upstream 13:09:27.800] * (100) [AS65002i]
-via fd00::1:2 on ens3
+	via fd00::1:2 on ens3
 root@debian:~#
 ```
 
@@ -334,10 +336,10 @@ root@debian:~# birdc s r
 BIRD 2.17.1 ready.
 Table master6:
 2001:db8:1::/48      unicast [upstream 13:09:27.861] * (100) [AS65001i]
-via fd00::1:1 on ens3
+	via fd00::1:1 on ens3
 2001:db8:2::/48      unreachable [static_v6 13:04:01.157] * (200)
 2001:db8:3::/48      unicast [peer 00:46:07.340] * (100) [AS65003i]
-via fd00::2:2 on ens4
+	via fd00::2:2 on ens4
 root@debian:~#
 ```
 
@@ -350,7 +352,7 @@ root@debian:~# birdc s r
 BIRD 2.17.1 ready.
 Table master6:
 2001:db8:2::/48      unicast [peer 00:47:21.551] * (100) [AS65002i]
-via fd00::2:1 on ens3
+	via fd00::2:1 on ens3
 2001:db8:3::/48      unreachable [static_v6 00:44:32.293] * (200)
 root@debian:~#
 ```

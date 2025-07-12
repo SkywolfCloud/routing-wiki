@@ -4,6 +4,8 @@ import starlight from "@astrojs/starlight";
 import fs from "fs";
 import mermaid from "astro-mermaid";
 import rehypeExternalLinks from "rehype-external-links";
+import remarkMath from "remark-math";
+import rehypeMathjax from "rehype-mathjax";
 const birdLang = JSON.parse(
   fs.readFileSync("./langs/bird2.tmLanguage.json", "utf8")
 );
@@ -47,9 +49,19 @@ export default defineConfig({
                 "beginner/connect-with-others/role",
               ],
             },
+            {
+              label: "四、多节点部署",
+              items: [
+                { label: "简介", slug: "beginner/multi-location" },
+                "beginner/multi-location/igp",
+                "beginner/multi-location/ibgp",
+                "beginner/multi-location/bfd",
+                "beginner/multi-location/lab",
+              ],
+            },
             { label: "配置客户端", slug: "beginner/player" },
             { label: "IDC配置", slug: "beginner/idc" },
-            { label: "多地部署", slug: "beginner/multi-location" },
+            { label: "多节点部署", slug: "beginner/multi-location-old" },
             { label: "后续工作", slug: "beginner/after" },
           ],
         },
@@ -76,7 +88,8 @@ export default defineConfig({
           rel: ["noopener", "noreferrer"],
           target: "_blank",
         },
-      ],
+      ],rehypeMathjax
     ],
+    remarkPlugins: [remarkMath],
   },
 });

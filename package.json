@@ -16,6 +16,8 @@
     "astro-mermaid": "^1.0.3",
     "mermaid": "^11.7.0",
     "rehype-external-links": "^3.0.0",
+    "rehype-mathjax": "^7.1.0",
+    "remark-math": "^6.0.0",
     "sharp": "^0.32.5"
   }
 }
