@@ -5,7 +5,7 @@ description: 介绍内部路由协议 IGP
 
 import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
-让我们先展示一个情景：
+让我们先来看一个情景：
 
 ```mermaid
 graph LR
@@ -19,11 +19,11 @@ graph LR
 
 ```
 
-问题是：从 A 到 C 的开销最低路径是什么？
+问题是：从 A 到 C 的最小开销路径是哪一条？
 
-你肯定会毫不犹豫的回答：经过 B 再到 C！这有什么难的。
+你很可能会毫不犹豫地回答：经由 B 再到 C！这看起来毫无难度。
 
-但如果是这样呢：
+但如果我们面对的是下面这种情况呢？
 
 ```mermaid
 graph LR
@@ -42,9 +42,9 @@ graph LR
 
 ```
 
-现在算起来还容易吗？更进一步，如果 cost 是变动的呢？难道你一天 24 小时守着配吗？
+现在计算起来还容易吗？更进一步，如果 cost 是动态变化的呢？你难道要 24 小时守着配置器随时手动调整吗？
 
-聪明的工程师们肯定不能让自己 24 小时值班，于是它们发明了 IGP。
+聪明的工程师显然不会允许自己日夜值班，于是他们发明了 IGP。
 
 # 概念介绍
 
@@ -56,21 +56,20 @@ graph LR
 >
 > 与此相对，[外部网关协议](https://zh.wikipedia.org/wiki/外部网关协议)用来在自治系统之间确定网络可达性、并通过内部网关协议来解析某个自治系统内部的路由。
 
-通俗而言，如果 BGP 决定了自治系统间怎么走，那 IGP 就决定了自治系统内怎么走。
+通俗来说，BGP 决定了自治系统之间如何通信，而 IGP 决定了自治系统内部的路径选择。
 
 <Aside type="note">
-  其实跟IGP对应的是EGP，但是EGP里面广泛使用的只有BGP，所以我们这里如此粗略介绍。
+  严格说来，IGP 的对立面是 EGP，但目前 EGP 几乎只有 BGP
+  在广泛使用，因此我们做此简化。
 </Aside>
 
 IGP 可分为三种：
 
 **IGP（Interior Gateway Protocol，内部网关协议）可大致分为三类：**
 
-1. **距离向量路由协议（Distance Vector Protocol）** 这类协议的特点是每个路由器只把自己知道的路由信息和距离（通常以跳数计）告诉相邻的路由器，路由器之间彼此交换信息，靠不断更新来找到最短路径。典型代表是 **RIP（Routing Information Protocol）**。RIP 配置简单，但扩展性差，收敛速度慢，适用于小型、简单网络。相比之下，**Babel** 是近年来较为流行的现代化距离向量协议，发布于 2021 年，虽然本质上也属于距离向量算法，但它在度量方式、环路避免和链路检测上做了很多改进，支持同时处理 IPv4 和 IPv6，并且非常适合动态变化的网络环境，比如无线 Mesh、流动性高的 VPS 组网或需要快速自愈的小型骨干网络。
-
+1. **距离向量路由协议（Distance Vector Protocol）** 这类协议的特点是每个路由器只把自己知道的路由信息和距离（通常以跳数计）告诉相邻的路由器，路由器之间彼此交换信息，靠不断更新来找到最短路径。典型代表是 **RIP（Routing Information Protocol）**。RIP 配置简单，但扩展性差，收敛速度慢，适用于小型、简单网络。相比之下，**Babel** 是近年来较为流行的现代化距离向量协议，发布于 2021 年，虽然本质上也属于距离向量算法，但它在度量方式、环路避免和链路检测上做了很多改进，支持同时处理 IPv4 和 IPv6，并且非常适合动态变化的网络环境，比如无线 Mesh、流动性高的 VPS 组网等。
 2. **链路状态路由协议（Link State Protocol）**这类协议要求每台路由器收集整个网络的拓扑信息，然后使用如 Dijkstra 算法计算最短路径，特点是收敛快、可扩展性强，适合中大型网络。典型代表是 **OSPF（Open Shortest Path First）** 和 **IS-IS（Intermediate System to Intermediate System）**。OSPF 是目前最常见的开源 IGP，分区域设计、支持认证和多路径，适用于复杂场景。ISIS 则常用在运营商的内网中，因为其扩展性高，适用于 MPLS 等需要携带更多信息的内网需求。
-
-3. **混合路由协议（Hybrid Protocol）** 顾名思义，这类协议融合了距离向量和链路状态的优点，比如同时使用邻居交换和拓扑更新机制。典型代表是 **EIGRP（Enhanced Interior Gateway Routing Protocol）**，是思科私有协议。EIGRP 结合了距离向量的简单和链路状态的快速收敛，但因专有性质较少使用。
+3. **混合路由协议（Hybrid Protocol）** 顾名思义，这类协议融合了前两种的优点，比如同时使用邻居交换和拓扑更新机制。典型代表是 **EIGRP（Enhanced Interior Gateway Routing Protocol）**，是思科私有协议。EIGRP 结合了距离向量的简单和链路状态的快速收敛，但因专有性质较少使用。
 
 RIP 太过时，EIGRP 太封闭，ISIS 需要 L2 连接，因此我们的选项仅有 OSPF 和 Babel。但考虑到 Babel 的时间较短，应用不够广泛，本节将只讲 OSPF，Babel 的讲解将在后面扩展中提到。（TODO）
 
@@ -84,10 +83,10 @@ RIP 太过时，EIGRP 太封闭，ISIS 需要 L2 连接，因此我们的选项�
 >
 > 同一个[广播域](https://zh.wikipedia.org/wiki/广播域)（Broadcast Domain）的[路由器](https://zh.wikipedia.org/wiki/路由器)或者一个[点对点](https://zh.wikipedia.org/wiki/点对点)（Point To Point）连接的两端的路由器，在发现彼此的时候，建立邻接（Adjacencies）[[注 1\]](https://zh.wikipedia.org/wiki/开放式最短路径优先#cite_note-1)。多路访问网络以及非广播多路访问网络的路由器会选举指定路由器（Designated Router, DR）和备份指定路由器（Backup Designated Router, BDR），DR 和 BDR 作为网络的中心负责路由器之间的信息交换从而降低了网络中的信息流量。OSPF 协议同时使用[单播](https://zh.wikipedia.org/wiki/單播)（Unicast）和[群播](https://zh.wikipedia.org/wiki/組播)（Multicast）来发送[Hello 包](https://zh.wikipedia.org/w/index.php?title=Hello包&action=edit&redlink=1)和链路状态更新（Link State Updates），使用的群播[地址](https://zh.wikipedia.org/wiki/IP地址)为 224.0.0.5 和 224.0.0.6。与[RIP](https://zh.wikipedia.org/wiki/路由信息协议)和[BGP](https://zh.wikipedia.org/wiki/BGP)不同的是，OSPF 协议不使用 TCP 或者 UDP 协议而是直接承载在 IP 协议之上，[IP 协议号](https://zh.wikipedia.org/wiki/IP协议号列表)为 89。
 
-但对于比较小的网络而言，我们不需要分区域，直接使用骨干区域就可以。因此，我们也不需要去特别的了解所谓 DR、BDR、ASBR 等无关紧要的概念。OSPF 分为 v2、v3 两个版本， 其中 v2 仅支持 IPv4，v3 支持 IPv4 和 IPv6，由于我们是 IPv6 内网，所以直接使用 OSPFv3 就可以。并且由于 IPv6 自带了 link-local 地址，OSPFv3 不需要配置 IP 就可以使用，更加地方便。
+在小型网络中，我们可以只使用一个骨干区域，不需要了解 DR、BDR、ASBR 等复杂机制。OSPF 分为 v2、v3 两个版本， 其中 v2 仅支持 IPv4，v3 支持 IPv4 和 IPv6，由于我们是 IPv6 内网，所以直接使用 OSPFv3 就可以。因为 IPv6 自带了 link-local 地址，所以 OSPFv3 不需要配置 IP 就可以使用，更加方便。
 
 <Aside type="note">
-  虽然OSPFv3不需要配置IP，但你也得把接口拉起来才有link-local地址给你用！
+  虽然 OSPFv3 可基于 link-local 地址自动运行，但接口必须先启用才能生成地址！
 </Aside>
 
 需要注意的是，在大部分路由系统中，OSPFv3 都需要分两个实例来分别跑 IPv4、IPv6 并独立计算 LSDB，因此实际操作中经常是 IPv6 起一个 OSPFv3，IPv4 起一个 OSPFv2（现在你应该知道为什么运营商不喜欢配双栈了）。OSPFv2 将在之后讲解（TODO）
@@ -115,7 +114,7 @@ graph LR
 ```bird2
 protocol ospf v3 ospfv3 {
     ipv6;
-    area 0 { # 我们只用 area0，设备不多没必要分 area
+    area 0 {
         interface "e0" {
             cost 10;
             type ptp;
@@ -472,7 +471,7 @@ root@debian:~#
 
 OSPF 是一个有很多要求的协议，这里梳理出一些常见问题给大家：
 
-1. 在 Wireguard 上配置时，使用 `type ptp` 尤其是对端是 Mikrotik 的时候，或 `type ptmp`当对端是 BIRD 的时候。
+1. Wireguard 上建议使用 `ptp` 类型，尤其对端为 Mikrotik 时，使用 `ptmp` 可能存在兼容性问题。
 2. 七个一样
    - MTU 必须一样
    - 区域类型必须一样
