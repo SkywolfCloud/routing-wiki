@@ -33,16 +33,13 @@ export default defineConfig({
         {
           label: "新手教程",
           items: [
-            { label: "前言", slug: "beginner" },
-            { label: "一、开始之前", slug: "beginner/before" },
-            {
-              label: "二、拉起一个BGP会话",
-              slug: "beginner/bring-up-a-bgp-session",
-            },
+            "beginner",
+            "beginner/before",
+            "beginner/bring-up-a-bgp-session",
             {
               label: "三、与他人连接",
               items: [
-                { label: "简介", slug: "beginner/connect-with-others" },
+                "beginner/connect-with-others/introduction",
                 "beginner/connect-with-others/concept",
                 "beginner/connect-with-others/filters",
                 "beginner/connect-with-others/lab",
@@ -52,18 +49,21 @@ export default defineConfig({
             {
               label: "四、多节点部署",
               items: [
-                { label: "简介", slug: "beginner/multi-location" },
+                "beginner/multi-location/introduction",
                 "beginner/multi-location/igp",
                 "beginner/multi-location/ibgp",
-                "beginner/multi-location/bfd",
                 "beginner/multi-location/lab",
+                "beginner/multi-location/bfd",
               ],
             },
-            { label: "配置客户端", slug: "beginner/player" },
-            { label: "IDC配置", slug: "beginner/idc" },
-            { label: "多节点部署", slug: "beginner/multi-location-old" },
-            { label: "后续工作", slug: "beginner/after" },
+            "beginner/after",
+            "beginner/troubleshooting",
+            "beginner/bring-home",
           ],
+        },
+        {
+          label: "杂项",
+          items: ["misc","misc/tools"],
         },
         {
           label: "Bird Wiki",
@@ -88,7 +88,8 @@ export default defineConfig({
           rel: ["noopener", "noreferrer"],
           target: "_blank",
         },
-      ],rehypeMathjax
+      ],
+      rehypeMathjax,
     ],
     remarkPlugins: [remarkMath],
   },
