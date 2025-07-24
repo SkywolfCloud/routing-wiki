@@ -3,13 +3,15 @@ title: Lab 示例
 description: 一个包含多个节点及上下游的 Lab 示例
 ---
 
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
 现在让我们建立一个Lab，使用我们前面学到的 IGP 和 iBGP，拓扑如下所示：
 
 
 
 ```mermaid
 graph LR
-  UpA[上游 A<br/>IP: fe80::aa<br/>AS65001]
+  UpA[上游 A<br/>IP: fe80::aa<br/>Prefix: 2001:db8:aa::/48<br/>AS65001]
   A[Node A<br/>IP: fe80::a<br/>AS114514]
   B[Node B<br/>IP: fe80::b<br/>广播前缀：2001:db8:100::/48<br/>AS114514]
   C[Node C<br/>IP: fe80::c<br/>AS114514]
@@ -20,17 +22,221 @@ graph LR
   C ---|"e1   e0"| UpC
 ```
 
-细心的你应该能看到我们这里用的IP是我们的回环IP，这里我们有一个小贴士：一般在有IGP的环境下起iBGP的时候，我们会选择用回环地址起iBGP，这样子当两者之间的内网路径有变动的时候，IGP能帮我们进行收敛，从而实现协议的分层。当然，这是当两个节点之间有多个节点进行转发的时候的操作方法，我们一般也用不到。
+细心的你应该能看到我们这里用的IP是我们的回环IP，这里有一个最佳实践：一般在有IGP的环境下起iBGP的时候，最好用回环地址起iBGP，这样子当两者之间的内网路径有变动的时候，IGP能帮我们进行收敛，从而实现协议的分层。当然，这是当两个节点之间有多个节点进行转发的时候的操作方法，我们一般也用不到，因此如果想用PtP起也是可以的。
+
+这里我们采用RR配法，以Node A作为RR。`functions.conf`等沿用[之前的内容](/beginner/connect-with-others/lab)，这里不再赘述。
 
 # 配置
 
 ## IGP
 
+<Tabs syncKey="node">
+
+<TabItem label="Node A">
+
+```bird2
+protocol ospf v3 ospfv3 {
+    ipv6;
+    area 0 {
+        interface "e1" {
+            cost 10;
+            type ptp;
+        }
+        interface "e2" {
+            cost 10;
+            type ptp;
+        }
+        interface "dummy0" {
+            stub;
+        }
+    };
+}
+```
+
+</TabItem>
+
+<TabItem label="Node B">
+
+```bird2
+protocol ospf v3 ospfv3 {
+    ipv6;
+    area 0 {
+        interface "e0" {
+            cost 10;
+            type ptp;
+        }
+        interface "dummy0" {
+            stub;
+        }
+    };
+}
+```
+
+</TabItem>
+
+<TabItem label="Node C">
+
+```bird2
+protocol ospf v3 ospfv3 {
+    ipv6;
+    area 0 {
+        interface "e0" {
+            cost 10;
+            type ptp;
+        }
+        interface "dummy0" {
+            stub;
+        }
+    };
+}
+```
+
+</TabItem>
+
+</Tabs>
+
 ## eBGP
+
+<Tabs syncKey="node">
+
+<TabItem label="Node A">
+
+```bird2
+
+```
+
+</TabItem>
+
+<TabItem label="Node C">
+
+```bird2
+
+```
+
+</TabItem>
+
+</Tabs>
 
 ## iBGP
 
+<Tabs syncKey="node">
+
+<TabItem label="Node A">
+
+```bird2
+
+```
+
+</TabItem>
+
+<TabItem label="Node B">
+
+```bird2
+
+```
+
+</TabItem>
+
+<TabItem label="Node C">
+
+```bird2
+
+```
+
+</TabItem>
+
+</Tabs>
+
 ## 全部配置
+
+<Tabs syncKey="node">
+
+<TabItem label="Node A">
+
+```bird2
+include "functions.conf";
+log syslog all;
+router id 1.1.1.1;
+protocol device {
+};
+
+protocol kernel {
+    ipv6 {
+        export all;
+    };
+};
+
+protocol ospf v3 ospfv3 {
+    ipv6;
+    area 0 {
+        interface "e1" {
+            cost 10;
+            type ptp;
+        }
+        interface "e2" {
+            cost 10;
+            type ptp;
+        }
+        interface "dummy0" {
+            stub;
+        }
+    };
+}
+
+protocol bgp upstream {
+    local fd00::1:2 as 65002;
+    neighbor fd00::1:1 as 65001;
+    direct;
+    ipv6 {
+        import where import_filter_upstream();
+        export where export_filter_upstream();
+    };
+    graceful restart;
+};
+
+protocol bgp node_b {
+    local fd00::2:1 as 65002;
+    neighbor fd00::2:2 as 65003;
+    direct;
+    ipv6 {
+        import where import_filter_peer("AS65003");
+        export where export_filter_peer();
+    };
+    graceful restart;
+};
+
+protocol bgp node_c {
+    local fd00::2:1 as 65002;
+    neighbor fd00::2:2 as 65003;
+    direct;
+    ipv6 {
+        import all;
+        export all;
+    };
+    graceful restart;
+};
+
+```
+
+</TabItem>
+
+<TabItem label="Node B">
+
+```bird2
+
+```
+
+</TabItem>
+
+<TabItem label="Node C">
+
+```bird2
+
+```
+
+</TabItem>
+
+</Tabs>
 
 ## 验证
 
