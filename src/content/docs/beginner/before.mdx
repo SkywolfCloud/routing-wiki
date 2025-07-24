@@ -34,7 +34,7 @@ import { Aside } from "@astrojs/starlight/components";
 - `dev wg0` 目标接口
 - `proto bird` 路由来源的协议，此处为 bird 指的是从 bird 写入
 - `src 10.2.3.1` 当这跳转发的来源是本机的时候，采用的源地址 IP
-- `matric 32` 路由度量值，存在多个对同一 IP 段的路由时用来决定选择哪条路由来使用，matric 越小路由优先级越高
+- `metric 32` 路由度量值，存在多个对同一 IP 段的路由时用来决定选择哪条路由来使用，metric 越小路由优先级越高
 
 <Aside type="tip" title="额外拓展">
   在 Linux 内： - 如果同时有 `dev` 和 `via`，系统会根据 ARP 表把目标 MAC
