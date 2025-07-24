@@ -1,21 +1,30 @@
-# Starlight Starter Kit: Basics
+# Routing Wiki
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
+Routing Wiki 是一个以 BGP 路由为核心的中文文档站点，旨在收集和分享有关网络路由的知识与实践经验。本站使用 [Astro](https://astro.build/) 搭配 [Starlight](https://starlight.astro.build/) 构建，内容遵循 [CC BY 4.0](LICENSE.md) 协议。
+
+## 本地运行
+
+安装依赖并启动开发服务器：
+
+```bash
+pnpm install
+pnpm dev
 ```
-pnpm create astro@latest -- --template starlight
+
+打开浏览器访问 `http://localhost:4321` 即可查看本地站点。
+
+## 构建与预览
+
+```bash
+pnpm build      # 生成静态站点到 ./dist
+pnpm preview    # 本地预览构建结果
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/starlight/tree/main/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/starlight/tree/main/examples/basics)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/withastro/starlight&create_from_path=examples/basics)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwithastro%2Fstarlight%2Ftree%2Fmain%2Fexamples%2Fbasics&project-name=my-starlight-docs&repository-name=my-starlight-docs)
+生成的 `./dist` 目录可直接部署到任意静态主机，或通过 Cloudflare Pages 等平台发布。
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+## 项目结构
 
 ```
 .
@@ -23,32 +32,16 @@ Inside of your Astro + Starlight project, you'll see the following folders and f
 ├── src/
 │   ├── assets/
 │   ├── content/
-│   │   ├── docs/
+│   │   └── docs/
 │   └── content.config.ts
 ├── astro.config.mjs
 ├── package.json
 └── tsconfig.json
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+文档内容位于 `src/content/docs/`，使用 Markdown/MDX 编写；图片存放在 `src/assets/`；公共静态资源位于 `public/`。
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+## 贡献
 
-Static assets, like favicons, can be placed in the `public/` directory.
+欢迎提交 issue 与 PR 共同完善文档。若有任何疑问或建议，也可以在 [GitHub Discussions](https://github.com/SkywolfCloud/routing-wiki/discussions) 中交流。
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
