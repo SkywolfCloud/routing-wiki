@@ -7,8 +7,6 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 现在让我们构建一个 Lab，综合运用前面学习过的 IGP 与 iBGP 协议。拓扑结构如下图所示：
 
-
-
 ```mermaid
 graph LR
   UpA[上游 A<br/>Prefix: 2001:db8:aa::/48<br/>AS65001]
@@ -446,7 +444,7 @@ Table master6:
                      unicast [node_a 04:44:21.515 from 2001:db8::a] (100/10) [i]
 	via fe80::52fe:b6ff:fe00:301 on ens3
 2001:db8:100::/48    unreachable [static1 04:43:10.196] * (200)
-root@debian:~# 
+root@debian:~#
 ```
 
 </TabItem>
@@ -475,7 +473,7 @@ Table master6:
 	via fe80::52fe:b6ff:fe00:302 on ens3
 2001:db8:100::/48    unicast [node_a 04:48:38.547 from 2001:db8::a] * (100/20) [i]
 	via fe80::52fe:b6ff:fe00:302 on ens3
-root@debian:~# 
+root@debian:~#
 ```
 
 </TabItem>
@@ -489,14 +487,14 @@ Table master6:
 2001:db8:cc::/48     unreachable [static1 04:49:59.628] * (200)
 2001:db8:100::/48    unicast [bgp1 04:50:55.368] * (100) [AS114514i]
 	via fe80::c on ens3
-root@debian:~# 
+root@debian:~#
 ```
 
 </TabItem>
 
 </Tabs>
 
-可以看到， Node B上广播的路由已经成功地被发送到了Upstream A和C，并且能够按照最优路径前往Upstream A和C的路由。
+可以看到， Node B 上广播的路由已经成功地被发送到了 Upstream A 和 C，并且能够按照最优路径前往 Upstream A 和 C 的路由。
 
 # 后续
 
