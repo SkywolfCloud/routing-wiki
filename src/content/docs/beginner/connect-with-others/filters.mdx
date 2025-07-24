@@ -1,0 +1,343 @@
+---
+title: 过滤器设计
+description: 设计我们需要用到的过滤器
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+正如我们前面所言， 上下游和 peer 所需要和发的路由是不一样的：上游发全表，收我们自己和我们下游；peer 发他们自己和他们下游，收我们自己和我们下游；下游发他们自己和下游，收全表。所以，接这些的关键，就是设计良好的过滤器，使得他们发来的路由，都能按照正确的方式进行处理。
+
+## BGP Community
+
+想象一下你的快递，如果上面不贴那个面单，也不让你写写画画，是不是分拣、运送就会难得多？同样的，对于一堆路由，如果没有办法让我们给它们“贴面单”，那我们要处理也会困难得多。所以，工程师们为路由添加了 BGP Community 属性，让我们能够便捷地区分路由，从而知道更多的信息或执行不同的策略。
+
+BGP Community 分三类：
+
+- 普通 Community 长 4 个字节，前两个字节为 ASN，后 2 个字节为标识符，例如 `(7720, 1)`。这种 Community 是最普遍的 Community，但是由于它硬性要求 ASN 为两个字节，所以我们使用不了。
+- Extended Community （扩展社区）长 8 个字节，为一个八字节的值，前二字节为类型，后六字节可以为一个 2 字节 ASN+一个 4 字节的值，也可以为一个 4 字节的 ASN 或 IP+一个 2 字节的值，在鸟内一般表示为`(type,administrator,value)`。Extended Community 一般用于 MPLS VPN 内，我们基本用到。
+- BGP Large Community（大型社区）长 12 个字节，前四字节为 ASN，后八个字节分别为数据 1 和数据 2，各 4 个字节，在鸟内一般表示为`(4byte ASN,4byte value,4byte value)`，。它被开发的主要原因是因为 4 字节 ASN 不能用于普通的 BGP 社区，也因此它会成为我们接下来最主要使用的 BGP Community，毕竟我们没有别的可选。
+
+对于我们而言，最主要用到的是普通 Community 和 Large Community。普通 Community 更多是用来操纵我们的路由，Large Community 才真正是为我们网络用来实现功能的。
+
+<Aside type="tip">
+  [RFC8195 Use of BGP Large
+  Communities](https://www.rfc-editor.org/rfc/rfc8195.html) 记录着一些Large
+  Community的用法，有兴趣可以去翻一下。
+</Aside>
+
+## Community 设计
+
+假设我们的 ASN 是 AS114514，下面我们来进行一些简单的 Community 设计（全部使用 Large Community）：
+
+| Community      | 意思                        |
+| -------------- | --------------------------- |
+| (114514, 1, 1) | 该路由来自上游              |
+| (114514, 1, 2) | 该路由来自 Peer             |
+| (114514, 1, 3) | 该路由来自自身（静态/OSPF） |
+| (114514, 1, 4) | 该路由来自下游              |
+
+这里只是简单的设计了一些信息类 Community，操作类 Community 我们暂不涉及，详情可以参考 [小狼的教程](https://littlewolf.moe/bgp/100/)（TODO）。
+
+## 他山之石
+
+在设计自己的过滤器之前，我们可以先看看别人的，比如[HE 的](https://routing.he.net/algorithm.html)，翻译如下：
+
+> Hurricane Electric 路由过滤算法
+> 这是针对具有显式过滤的客户和对等体的路由过滤算法：
+>
+> 1. 尝试为该网络找到一个 as-set。
+>
+>    1.1 在 peeringdb 中，针对该 ASN，检查是否有 IRR as-set 名称。
+>    通过检索验证 as-set 名称。如果存在，则使用它。
+>
+>    1.2 在 IRR 中，查询该 ASN 的 aut-num。如果存在，检查该 ASN 的 aut-num，看看是否能从其 IRR 策略中提取一个 as-set，方法是查找导出（export）或多协议导出（mp-export）到 AS6939、ANY 或 AS-ANY。
+>    优先顺序如下：使用第一个匹配项，先检查“export”，再检查“mp-export”，并且先检查“export: to AS6939”，再检查“export: to ANY”或“export: to AS-ANY”。
+>    通过检索验证 as-set 名称。如果存在，则使用它。
+>
+>    1.3 检查 Hurricane Electric 的 NOC 维护的各种内部列表，这些列表将 ASN 映射到我们发现或被告知的 as-set 名称。
+>    通过检索验证 as-set 名称。如果存在，则使用它。
+>
+>    1.4 如果前面的步骤未找到 as-set 名称，则使用 ASN。
+>
+> 2. 收集与该 ASN 所有 BGP 会话接收的路由。这包括接受和过滤的路由详情。
+>
+> 3. 对每条路由执行以下拒绝测试：
+>
+>    3.1 拒绝默认路由 0.0.0.0/0 和 ::/0。
+>
+>    3.2 拒绝使用 BGP AS_SET 表示法的 AS 路径（即 \{1\} 或 \{1 2\} 等）。参见 draft-ietf-idr-deprecate-as-set-confed-set。
+>
+>    3.3 拒绝前缀长度小于最小值或大于最大值的路由。IPv4 的范围是 8 到 24，IPv6 的范围是 16 到 48。
+>
+>    3.4 拒绝 bogons（RFC1918，文档前缀等）。
+>
+>    3.5 拒绝所有 Hurricane Electric 连接的 IX 的 IX 前缀。
+>
+>    3.6 拒绝长度超过 50 跳的 AS 路径。过度的 BGP AS 路径预置是一种自我造成的漏洞。
+>
+>    3.7 拒绝使用未分配的 32 位 ASN（介于 1000000 和 4199999999 之间）的 AS 路径。https://www.iana.org/assignments/as-numbers/as-numbers.xhtml
+>
+>    3.8 拒绝使用未分配的 32 位 AS 号（介于 4200000000 和 4294967294 之间）的 AS 路径。根据 RFC6996，这些号码保留供私有使用。
+>
+>    3.9 拒绝使用 AS 23456 的 AS 路径。支持 32 位 AS 号的 BGP 节点的 AS 路径中不应出现 AS 23456。
+>
+>    3.10 拒绝使用 AS 0 的 AS 路径。根据 RFC 7606，“BGP 节点不得发起或传播 AS 号为零的路由”。
+>
+>    3.11 拒绝在路径中任何存在客户 ASPA 记录且提供者 ASN 未被列为提供者的跳点，未通过 ASPA（自治系统提供者授权）检查的路由。
+>
+>    3.12 拒绝通过路由服务器学习到的路由，并且该路由包含一个跳点，该跳点的 ASN 已指定“绝不通过路由服务器”（peeringdb 标志）。
+>
+>    3.13 拒绝基于源 AS 和前缀的 RPKI 状态为 INVALID_ASN 或 INVALID_LENGTH 的路由。
+>
+> 4. 对每条路由执行以下接受测试：
+>
+>    4.1 如果源是邻居 AS，则接受基于源 AS 和前缀的 RPKI 状态为 VALID 的路由。
+>
+>    4.2 如果前缀是一个已宣布的下游路由，且是因 RPKI 或 RIR 句柄匹配而被接受的起源前缀的子网，则接受该前缀。
+>
+>    4.3 如果前缀和对等 AS 的 RIR 句柄匹配，则接受该前缀。
+>
+>    4.4 如果该前缀与此对等体的 IRR 策略允许的前缀完全匹配，则接受该前缀。
+>
+>    4.5 如果路径中的第一个 AS 与对等体匹配，路径长度为两跳，且起源 AS 包含在对等 AS 的扩展 AS 集合中，并且 RPKI 状态为 VALID 或起源 AS 和前缀存在 RIR 句柄匹配，则接受该前缀。
+>
+> 5. 拒绝所有未被明确接受的前缀
+
+我们可以看到，HE 就明确地采用了“显式接受”的策略。
+
+接下来，让我们尝试实现一下自己的策略。
+
+<Aside type="caution">
+  这里并未给出包含所有函数的自洽的完整实现，具体完整实现在[Lab示例](#Lab示例)处！
+</Aside>
+
+## 上游
+
+### 导入
+
+我们的策略是：
+
+1. 拒绝所有不合法的 ASN、前缀和太长（超过/24 和/48）的前缀
+1. 拒绝所有 RPKI 状态为 INVALID 的前缀（即有 RPKI 且 RPKI 授权的 ASN 和当前广播的 ASN 不符合）
+1. 接受剩余的前缀（毕竟本来也是要发你全表的）并且将 local preference 设为 100
+
+其中 local preference 是路由的本地优先级，越高越优先，100 为默认值。
+
+用 BIRD 过滤器的实现如下：
+
+```bird2
+function import_filter_upstream() -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " invalid prefix, reject";
+        return false;
+    }
+    if !rpki_check() then return false;
+    bgp_large_community.add((114514,1,1)); # 添加区分 Community
+    bgp_local_pref = 100; # 设置路由优先级为比较靠后
+    return true;
+}
+```
+
+`if_not_valid_asn()` 和 `is_not_valid_prefix()` 是我们用到的工具函数，具体可以去[全部配置](#全部配置)处查看。
+
+### 导出
+
+我们的策略是：
+
+1. 拒绝所有不合法的 ASN、前缀和太长（超过/24 和/48）的前缀
+2. 允许所有自身前缀和下游前缀
+3. 拒绝所有其他前缀
+
+BIRD 实现如下：
+
+```bird2
+function export_filter_upstream() -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " export invalid prefix, reject";
+        return false;
+    }
+    if bgp_large_community ~ [(114514, 1, 3), (114514, 1, 4)] then return true;
+    return false;
+}
+```
+
+## Peer
+
+### 导入
+
+Peer 的导入策略是：
+
+1. 拒绝所有不合法的 ASN、前缀和太长（超过/24 和/48）的前缀
+2. 拒绝所有 RPKI 状态为 INVALID 的前缀（即有 RPKI 且 RPKI 授权的 ASN 和当前广播的 ASN 不符合）
+3. 接受有有效 IRR 的前缀并且将 local preference 设为 200（比上游高，因为通常走 Peer 是免费的）
+4. 拒绝所有其他前缀
+
+```bird2
+function import_filter_peer(string s_name) -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " invalid prefix, reject";
+        return false;
+    }
+    if !rpki_check() then return false;
+    if inet_irr_check(s_name) then {
+        bgp_large_community.add((114514,1,2));
+        bgp_local_pref = 200;
+        return true;
+    }
+    return false;
+}
+```
+
+这里出现了个 `inet_irr_check(s_name)`，我们待会再讲。
+
+### 导出
+
+Peer 的导出策略跟上游的导出策略一样，也是：
+
+1. 拒绝所有不合法的 ASN、前缀和太长（超过/24 和/48）的前缀
+2. 允许所有自身前缀和下游前缀
+3. 拒绝所有其他前缀
+
+BIRD 实现如下：
+
+```bird2
+function export_filter_peer() -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " export invalid prefix, reject";
+        return false;
+    }
+    if bgp_large_community ~ [(114514, 1, 3), (114514, 1, 4)] then return true;
+    return false;
+}
+```
+
+## 下游
+
+### 导入
+
+下游的导入和 Peer 的导入类似，策略是：
+
+1. 拒绝所有不合法的 ASN、前缀和太长（超过/24 和/48）的前缀
+2. 拒绝所有 RPKI 状态为 INVALID 的前缀（即有 RPKI 且 RPKI 授权的 ASN 和当前广播的 ASN 不符合）
+3. 允许有有效 IRR 的前缀并且将 local preference 设为 400（最高，毕竟走下游是他付费）
+4. 拒绝所有其他前缀
+
+BIRD 实现如下：
+
+```bird2
+function import_filter_downstream(string s_name) -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " invalid prefix, reject";
+        return false;
+    }
+    if !rpki_check() then return false;
+    if inet_irr_check(s_name) then {
+        bgp_large_community.add((114514,1,4));
+        bgp_local_pref = 400;
+        return true;
+    }
+    return false;
+}
+```
+
+### 导出
+
+导出就很简单了：
+
+1. 拒绝所有不合法的 ASN、前缀和太长（超过/24 和/48）的前缀
+2. 允许所有带标记的前缀
+3. 拒绝所有其他前缀（防止内网前缀、IX 前缀等漏出去）
+
+BIRD 实现如下：
+
+```bird2
+function export_filter_downstream() -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " export invalid prefix, reject";
+        return false;
+    }
+    if bgp_large_community ~ [(114514, 1, 1), (114514, 1, 2), (114514, 1, 3), (114514, 1, 4)] then return true;
+    return false;
+}
+```
+
+## 调用
+
+细心的你可能注意到了，我们上面写的都是 function，不是 filter，这是因为 function 可以有函数，方便我们根据参数进行判断。那是不是我们需要写一个 filter 将其包起来呢？也不是，BIRD 为我们提供了`where`关键字，可以快捷的调用函数。
+
+示例如下：
+
+```bird2 {25-26} "where"
+function import_filter_upstream() -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " invalid prefix, reject";
+        return false;
+    }
+    if !rpki_check() then return false;
+    bgp_large_community.add((114514,1,1)); # 添加区分 Community
+    bgp_local_pref = 100; # 设置路由优先级为比较靠后
+    return true;
+}
+function export_filter_upstream() -> bool {
+    if net_len_too_long() || is_not_valid_asn() || is_not_valid_prefix() then {
+        print net, " export invalid prefix, reject";
+        return false;
+    }
+    if bgp_large_community ~ [(114514, 1, 3), (114514, 1, 4)] then return true;
+    return false;
+}
+# 这里以上一章的 protocol 作为示例
+protocol bgp upstream {
+    local fc00::2 as ASN;
+    neighbor fd00::1 as 64512;
+    multihop 2;
+    ipv6 {
+        import where import_filter_upstream();
+        export where import_filter_upstream();
+    };
+    graceful restart;
+};
+```
+
+这里我们使用 `where` 关键字，快捷地调用了函数作为我们的过滤器，从而使代码更简洁。
+
+{/* prettier-ignore */}
+<Aside type="tip">
+  `where`关键字后面实际上接的是一个表达式，比如你可以写：
+  ```bird2
+  export where source ~ [RTS_DEVICE, RTS_STATIC, RTS_RIP];
+  ```
+  来导出所有来自设备、静态路由或 RIP 的路由。
+</Aside>
+
+## IRR
+
+刚才我们的过滤器里面出现了 `inet_irr_check(s_name)`，这个是我们用于检验 IRR 的工具函数，它大概长这样：
+
+```bird2
+function inet_irr_check(string as_set) -> bool {
+	if net.type = NET_IP4 then { # IPv4检查
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24}, <前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
+	} else if net.type = NET_IP6 then { # IPv6检查
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,48} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,48} ...] then return true;else return false;};
+		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,48} ...] then return true;else return false;};
+	} else return false;
+};
+```
+
+为了使用它，你需要：
+
+1. 使用比如`bgpq4`等软件获取 ASN/ASSET 的 IP 前缀列表。
+2. 用工具（如 jinja2）将前缀拼合进如上函数，并保存到如 `irr.conf` 中。
+3. 使用 `include irr.conf;`将其导入到函数中。
+4. 如果是在运行时变动，则重载 BIRD。
+
+你可以让 AI 用你喜欢的语言生成一个制作这个的脚本，此处省略~~留作课后习题~~。
+
+<Aside type="note">
+  BIRD
+  的`include`是文本拼合，所以如果报错可能会在一个不存在的行数。也请注意不要出现循环引用问题。
+</Aside>
