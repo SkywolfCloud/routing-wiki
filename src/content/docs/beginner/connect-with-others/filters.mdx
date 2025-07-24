@@ -315,7 +315,7 @@ protocol bgp upstream {
 刚才我们的过滤器里面出现了 `inet_irr_check(s_name)`，这个是我们用于检验 IRR 的工具函数，它大概长这样：
 
 ```bird2
-function irr_check(string as_set) -> bool {
+function inet_irr_check(string as_set) -> bool {
 	if net.type = NET_IP4 then { # IPv4检查
 		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24}, <前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};
 		if as_set = "<AS-SET>" then {if net ~ [<前缀IP段>/<前缀长度>{<前缀长度>,24} ...] then return true;else return false;};

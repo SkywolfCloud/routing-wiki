@@ -53,7 +53,6 @@ export default defineConfig({
                 "beginner/multi-location/igp",
                 "beginner/multi-location/ibgp",
                 "beginner/multi-location/lab",
-                "beginner/multi-location/bfd",
               ],
             },
             "beginner/after",
