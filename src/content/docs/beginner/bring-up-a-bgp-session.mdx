@@ -1,5 +1,5 @@
 ---
-title: 二、拉起一个BGP会话
+title: 二、拉起一个 BGP 会话
 description: 快速与上游建立连接
 ---
 
@@ -113,7 +113,7 @@ filter import_filter_v6 {
 
 建议在编写过滤器时，始终**显式地定义 accept 的条件，并在末尾用 reject 兜底**，像第 3 行一样，切勿偷懒。
 
-更多过滤器的用法可以参考 [Soha 的教程](https://github.com/moesoha/bird-bgp-kickstart/blob/master/main.md#3-过滤过滤) 或 [BIRD 中文文档](https://bird.xmsl.dev/docs/user-guide/5-1-introduction.html)。要记住： **对于路由过滤，无论再怎么小心都不为过。你少写的每一个字符，都可能造成几百万美元的损失和几个小时的全球停机。**
+更多过滤器的用法可以查看[第三章 过滤器设计](/beginner/connect-with-others/filters/)、 [Soha 的教程](https://github.com/moesoha/bird-bgp-kickstart/blob/master/main.md#3-过滤过滤) 或 [BIRD 中文文档](https://bird.xmsl.dev/docs/user-guide/5-1-introduction.html)。要记住： **对于路由过滤，无论再怎么小心都不为过。你少写的每一个字符，都可能造成几百万美元的损失和几个小时的全球停机。**
 
 # 在 BIRD 中配置 BGP
 
@@ -289,7 +289,7 @@ root@debian:~#
 ## 创建虚拟网卡
 
 <Tabs syncKey="network">
-<TabItem label="Debian interfaces">
+<TabItem label="Debian/Ubuntu ifupdown">
 
 在 `/etc/network/interfaces` 中添加如下配置（这里以前面示例的前缀为例）：
 
@@ -312,7 +312,7 @@ root@debian:~#
 如果如上所示，`dummy0` 启动时没有任何错误，那么虚拟网卡已经成功创建。
 
 </TabItem>
-<TabItem label="通用 ip 命令">
+<TabItem label="iproute2">
 
 使用以下命令手动创建虚拟网卡和分配地址（这里以前面示例的前缀为例）：
 

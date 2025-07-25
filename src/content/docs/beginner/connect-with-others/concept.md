@@ -54,7 +54,7 @@ Tier 3 是最下层，需付费通过上游或 Peer 转发流量，典型是 IDC
 
 一个 AS-SET 的经典示例：
 
-```rpsl
+```yaml
 as-set:         AS13335:AS-CLOUDFLARE
 descr:          Cloudflare, Inc.
                 101 Townsend Street, San Francisco

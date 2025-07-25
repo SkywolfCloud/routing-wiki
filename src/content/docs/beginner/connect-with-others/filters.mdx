@@ -14,8 +14,8 @@ import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 BGP Community 分三类：
 
 - 普通 Community 长 4 个字节，前两个字节为 ASN，后 2 个字节为标识符，例如 `(7720, 1)`。这种 Community 是最普遍的 Community，但是由于它硬性要求 ASN 为两个字节，所以我们使用不了。
-- Extended Community （扩展社区）长 8 个字节，为一个八字节的值，前二字节为类型，后六字节可以为一个 2 字节 ASN+一个 4 字节的值，也可以为一个 4 字节的 ASN 或 IP+一个 2 字节的值，在鸟内一般表示为`(type,administrator,value)`。Extended Community 一般用于 MPLS VPN 内，我们基本不会用到。
-- BGP Large Community（大型社区）长 12 个字节，前四字节为 ASN，后八个字节分别为数据 1 和数据 2，各 4 个字节，在鸟内一般表示为`(4byte ASN,4byte value,4byte value)`，。它被开发的主要原因是因为 4 字节 ASN 不能用于普通的 BGP 社区，也因此它会成为我们接下来最主要使用的 BGP Community，毕竟我们没有别的可选。
+- Extended Community （扩展社区）长 8 个字节，为一个八字节的值，前二字节为类型，后六字节可以为一个 2 字节 ASN+一个 4 字节的值，也可以为一个 4 字节的 ASN 或 IP+一个 2 字节的值，在 BIRD 内一般表示为`(type,administrator,value)`。Extended Community 一般用于 MPLS VPN 内，我们基本不会用到。
+- BGP Large Community（大型社区）长 12 个字节，前四字节为 ASN，后八个字节分别为数据 1 和数据 2，各 4 个字节，在 BIRD 内一般表示为`(4byte ASN,4byte value,4byte value)`，。它被开发的主要原因是因为 4 字节 ASN 不能用于普通的 BGP 社区，也因此它会成为我们接下来最主要使用的 BGP Community，毕竟我们没有别的可选。
 
 对于我们而言，最主要用到的是普通 Community 和 Large Community。普通 Community 更多是用来操纵我们的路由，Large Community 才真正是为我们网络用来实现功能的。
 
@@ -138,7 +138,7 @@ function import_filter_upstream() -> bool {
 }
 ```
 
-`if_not_valid_asn()` 和 `is_not_valid_prefix()` 是我们用到的工具函数，具体可以去[全部配置](#全部配置)处查看。
+`if_not_valid_asn()` 和 `is_not_valid_prefix()` 是我们用到的工具函数，具体可以去[全部配置](/beginner/connect-with-others/lab/#%E5%85%A8%E9%83%A8%E9%85%8D%E7%BD%AE)处查看。
 
 ### 导出
 
