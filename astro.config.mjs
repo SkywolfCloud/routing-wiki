@@ -6,12 +6,15 @@ import mermaid from "astro-mermaid";
 import rehypeExternalLinks from "rehype-external-links";
 import remarkMath from "remark-math";
 import rehypeMathjax from "rehype-mathjax";
+import remarkRFCLinker from "./src/plugins/remark-rfc-linker.ts";
+
 const birdLang = JSON.parse(
   fs.readFileSync("./langs/bird2.tmLanguage.json", "utf8")
 );
 const interfacesLang = JSON.parse(
   fs.readFileSync("./langs/interfaces.tmLanguage.json", "utf8")
 );
+
 // https://astro.build/config
 export default defineConfig({
   integrations: [
@@ -57,12 +60,12 @@ export default defineConfig({
             },
             "beginner/after",
             "beginner/troubleshooting",
-            "beginner/bring-home",
+            "beginner/real-world-interconnection",
           ],
         },
         {
           label: "杂项",
-          items: ["misc","misc/tools"],
+          items: ["misc", "misc/tools"],
         },
         {
           label: "Bird Wiki",
@@ -90,6 +93,6 @@ export default defineConfig({
       ],
       rehypeMathjax,
     ],
-    remarkPlugins: [remarkMath],
+    remarkPlugins: [remarkMath, remarkRFCLinker],
   },
 });
