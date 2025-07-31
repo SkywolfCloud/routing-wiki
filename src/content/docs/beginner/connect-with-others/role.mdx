@@ -5,7 +5,7 @@ description: 简介 BIRD 中新引入的 role 的用法
 
 import { Tabs, TabItem } from "@astrojs/starlight/components";
 
-正常来讲，要做到如上的区分，我们需要用 Community 来标记哪些路由是上游的，哪些是客户的，哪些是 peer 的，再用一堆过滤器去筛选它，就像我们上面勇了。但这太麻烦了，还容易出错！于是，有人提出了[RFC9234](https://www.rfc-editor.org/rfc/rfc9234.html)，用内置的属性来进行区分，而这项 RFC 也在 BIRD 内得到了支持。在下面，我们写一版使用这种方式进行过滤的配置。
+正常来讲，要做到如上的区分，我们需要用 Community 来标记哪些路由是上游的，哪些是客户的，哪些是 peer 的，再用一堆过滤器去筛选它，就像我们上面勇了。但这太麻烦了，还容易出错！于是，有人提出了 RFC9234，用内置的属性来进行区分，而这项 RFC 也在 BIRD 内得到了支持。在下面，我们写一版使用这种方式进行过滤的配置。
 
 前述不变，这里只放 BGP 配置：
 
@@ -122,11 +122,11 @@ protocol bgp bgp_peer {
 >
 > OTC 属性可以在远程 AS 出口处设置，也可以在本地 AS 入口处设置——即如果远程 AS 不符合本规范，则本地 AS 在属性缺失时需要补加 OTC 属性。在这两种场景下，OTC 值是相同的。这种机制提高了方案的鲁棒性，并对早期采用者有利。
 >
-> 如果 OTC 属性的长度不是 4，则视为格式错误（malformed）。对于携带格式错误 OTC 属性的 UPDATE 报文，**应**按照 [RFC7606] 的“视同撤销（treat-as-withdraw）”方法处理。
+> 如果 OTC 属性的长度不是 4，则视为格式错误（malformed）。对于携带格式错误 OTC 属性的 UPDATE 报文，**应**按照 RFC7606 的“视同撤销（treat-as-withdraw）”方法处理。
 >
-> 本文件指定的 BGP 角色协商和基于 OTC 属性的过程，**不推荐**在自治系统联盟（AS Confederation，见 [RFC5065]）内部的自治系统之间使用。如果从 AS Confederation 出口处添加了 OTC 属性，其值**必须**等于该 AS Confederation 的标识符（Identifier）。此外，从 AS Confederation 出口处发送的 UPDATE 报文**不得**包含值为除 AS Confederation Identifier 之外的任何成员 AS 号的 OTC 属性。
+> 本文件指定的 BGP 角色协商和基于 OTC 属性的过程，**不推荐**在自治系统联盟（AS Confederation，见 RFC5065）内部的自治系统之间使用。如果从 AS Confederation 出口处添加了 OTC 属性，其值**必须**等于该 AS Confederation 的标识符（Identifier）。此外，从 AS Confederation 出口处发送的 UPDATE 报文**不得**包含值为除 AS Confederation Identifier 之外的任何成员 AS 号的 OTC 属性。
 >
-> 本文件中定义的过程，可在使用私有 ASN 的场景下（如数据中心网络 [RFC7938] 或存根客户）使用，但相关细节不在本文件范围内。从面向互联网的 ASN 出口时，OTC 属性**不得**包含除该 ASN 之外的其他值。
+> 本文件中定义的过程，可在使用私有 ASN 的场景下（如数据中心网络 RFC7938 或存根客户）使用，但相关细节不在本文件范围内。从面向互联网的 ASN 出口时，OTC 属性**不得**包含除该 ASN 之外的其他值。
 >
 > 一旦设置了 OTC 属性，**必须**保持不变（这同样适用于 AS Confederation）。
 >

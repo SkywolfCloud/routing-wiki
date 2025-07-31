@@ -35,7 +35,7 @@ import { Aside } from "@astrojs/starlight/components";
 - `metric 32` 路由度量值，存在多个对同一 IP 段的路由时用来决定选择哪条路由来使用，metric 越小路由优先级越高
 
 <Aside type="tip" title="额外拓展">
-{/* prettier-ignore */}
+{/* prettier-ignore */} 
 在 Linux 内：
  - 如果同时有 `dev` 和 `via`，系统会根据 ARP 表把目标 MAC 改写成下一跳的 MAC（若 ARP 表中没有，则会通过 `dev` 指定的接口发起 ARP 查询）。
  - 如果只有 `dev` 没有 `via`，则直接用 ARP 表查找目标地址的 MAC（同样若无记录则发起 ARP），然后通过指定接口转发。
