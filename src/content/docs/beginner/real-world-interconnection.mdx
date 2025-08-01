@@ -264,7 +264,7 @@ ip addr add <内部v6地址CIDR> dev sit1
 
 # GRE
 
-GRE（**G**eneric **R**outing **E**ncapsulation，通用路由封装，RFC2784, RFC1701），是一种常用的 L3 隧道。跟 SIT 的区别是 GRE 有一个 GRE 头，这使得它可以传输任何 L3 包而不仅限于 IP。GRE 的包头大小为 4 字节，故其在 IPv4 下的 MTU 为 1476，在 IPv6 下的 MTU 为 1456。GRE 本身不带加密，但可以和 IPsec 组成加密隧道，具体方法请自行搜索。
+GRE（**G**eneric **R**outing **E**ncapsulation，通用路由封装，RFC2784），是一种常用的 L3 隧道。跟 SIT 的区别是 GRE 有一个 GRE 头，这使得它可以传输任何 L3 包而不仅限于 IP。GRE 的包头大小为 4 字节，故其在 IPv4 下的 MTU 为 1476，在 IPv6 下的 MTU 为 1456。GRE 本身不带加密，但可以和 IPsec 组成加密隧道，具体方法请自行搜索。
 
 配置方法如下：
 
@@ -296,7 +296,7 @@ ip addr add <内部地址CIDR> dev gre1
 
 ## L2GRE
 
-L2GRE 跟 GRE 的区别是，GRE 内层不是一个 IP 包，而是一个以太网帧，此时它就成为了一个 L2 隧道，GRE 头内的协议号为 6558（Transparent Ethernet Bridging）。MTU 跟普通 GRE 相同，但此时内层包的内容更大。
+L2GRE（又称 EoGRE、GRETAP，RFC1701），是一种更底层的 GRE。它跟 GRE 的区别是，GRE 内层不是一个 IP 包，而是一个以太网帧，此时它就成为了一个 L2 隧道，GRE 头内的协议号为 6558（Transparent Ethernet Bridging）。MTU 跟普通 GRE 相同，但此时内层包的内容更大。
 
 配置方法如下（就是把 gre 改成 gretap）：
 
