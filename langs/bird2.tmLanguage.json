@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "displayName": "BIRD2 Configuration",
   "name": "bird2",
   "patterns": [
     {
@@ -27,6 +28,9 @@
       "include": "#prefixes"
     },
     {
+      "include": "#template-definitions"
+    },
+    {
       "include": "#filter-definitions"
     },
     {
@@ -36,7 +40,19 @@
       "include": "#protocol-definitions"
     },
     {
-      "include": "#keywords"
+      "include": "#next-hop-statements"
+    },
+    {
+      "include": "#import-export-statements"
+    },
+    {
+      "include": "#structural-keywords"
+    },
+    {
+      "include": "#functional-keywords"
+    },
+    {
+      "include": "#semantic-modifiers"
     },
     {
       "include": "#builtin-functions"
@@ -55,6 +71,12 @@
     },
     {
       "include": "#constants"
+    },
+    {
+      "include": "#filter-names"
+    },
+    {
+      "include": "#user-variables"
     },
     {
       "include": "#function-calls"
@@ -250,7 +272,7 @@
           "end": "\\}",
           "beginCaptures": {
             "1": {
-              "name": "keyword.other.filter.bird"
+              "name": "keyword.control.filter.bird"
             },
             "2": {
               "name": "entity.name.function.filter.bird"
@@ -277,10 +299,10 @@
           "end": "\\}",
           "beginCaptures": {
             "1": {
-              "name": "keyword.other.function.bird"
+              "name": "keyword.control.function.bird"
             },
             "2": {
-              "name": "entity.name.function.bird"
+              "name": "entity.name.function.user-defined.bird"
             }
           },
           "endCaptures": {
@@ -324,21 +346,74 @@
         }
       ]
     },
+    "template-definitions": {
+      "patterns": [
+        {
+          "name": "meta.template-definition.bird",
+          "begin": "\\b(template)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\{",
+          "end": "\\}",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.template.bird"
+            },
+            "2": {
+              "name": "entity.name.type.protocol.bird"
+            },
+            "3": {
+              "name": "entity.name.function.template.bird"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.block.end.bird"
+            }
+          },
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    },
     "protocol-definitions": {
       "patterns": [
         {
-          "name": "meta.protocol-definition.bird",
+          "name": "meta.protocol-definition-with-name.bird",
           "begin": "\\b(protocol)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\{",
           "end": "\\}",
           "beginCaptures": {
             "1": {
-              "name": "keyword.other.protocol.bird"
+              "name": "keyword.control.protocol.bird"
             },
             "2": {
               "name": "entity.name.type.protocol.bird"
             },
             "3": {
               "name": "entity.name.function.protocol.bird"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.block.end.bird"
+            }
+          },
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        },
+        {
+          "name": "meta.protocol-definition-anonymous.bird",
+          "begin": "\\b(protocol)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\{",
+          "end": "\\}",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.protocol.bird"
+            },
+            "2": {
+              "name": "entity.name.type.protocol.bird"
             }
           },
           "endCaptures": {
@@ -378,7 +453,99 @@
         }
       ]
     },
-    "keywords": {
+    "next-hop-statements": {
+      "patterns": [
+        {
+          "name": "meta.next-hop-ipv4.bird",
+          "match": "\\b(next hop)\\s+(ipv4)\\s+([0-9\\.]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.routing.bird"
+            },
+            "2": {
+              "name": "keyword.other.ip-version.bird"
+            },
+            "3": {
+              "name": "constant.numeric.ip-address.bird"
+            }
+          }
+        },
+        {
+          "name": "meta.next-hop-ipv6.bird",
+          "match": "\\b(next hop)\\s+(ipv6)\\s+([0-9a-fA-F:]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.routing.bird"
+            },
+            "2": {
+              "name": "keyword.other.ip-version.bird"
+            },
+            "3": {
+              "name": "constant.numeric.ip-address.bird"
+            }
+          }
+        },
+        {
+          "name": "meta.next-hop-simple.bird",
+          "match": "\\b(next hop)\\s+(self)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.routing.bird"
+            },
+            "2": {
+              "name": "keyword.other.semantic-modifier.bird"
+            }
+          }
+        },
+        {
+          "name": "meta.extended-next-hop-statement.bird",
+          "match": "\\b(extended next hop)\\s+(on|off)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.routing.bird"
+            },
+            "2": {
+              "name": "keyword.other.semantic-modifier.bird"
+            }
+          }
+        }
+      ]
+    },
+    "import-export-statements": {
+      "patterns": [
+        {
+          "name": "meta.import-statement.bird",
+          "match": "\\b(import)\\s+(filter)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.import-export.bird"
+            },
+            "2": {
+              "name": "keyword.control.filter.bird"
+            },
+            "3": {
+              "name": "entity.name.function.filter.bird"
+            }
+          }
+        },
+        {
+          "name": "meta.export-statement.bird",
+          "match": "\\b(export)\\s+(filter)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.import-export.bird"
+            },
+            "2": {
+              "name": "keyword.control.filter.bird"
+            },
+            "3": {
+              "name": "entity.name.function.filter.bird"
+            }
+          }
+        }
+      ]
+    },
+    "structural-keywords": {
       "patterns": [
         {
           "name": "keyword.control.bird",
@@ -393,24 +560,68 @@
           "match": "\\b(?:accept|reject|error)\\b"
         },
         {
-          "name": "keyword.other.protocol.bird",
-          "match": "\\b(?:protocol|template|table|filter|function|import|export|static|rip|ospf|bgp|babel|rpki|bfd|device|direct|kernel|pipe|perf|mrt|aggregator|l3vpn|radv)\\b"
+          "name": "keyword.control.structure.bird",
+          "match": "\\b(?:table|define|include|attribute|eval|ipv4|ipv6|local|as)\\b"
+        }
+      ]
+    },
+    "functional-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.protocol-type.bird",
+          "match": "\\b(?:static|rip|ospf|bgp|babel|rpki|bfd|device|direct|kernel|pipe|perf|mrt|aggregator|l3vpn|radv)\\b"
         },
         {
-          "name": "keyword.other.define.bird",
-          "match": "\\b(?:define|include|attribute|eval)\\b"
+          "name": "keyword.control.routing.bird",
+          "match": "\\b(?:graceful|restart|preference|disabled|hold|keepalive|connect|retry|start|delay|error|wait|forget|scan|randomize|router|id)\\b"
+        },
+        {
+          "name": "keyword.other.interface.bird",
+          "match": "\\b(?:interface|type|wired|wireless|tunnel|rxcost|limit|hello|update|interval|port|tx|class|dscp|priority|rx|buffer|length|check|link|rtt|cost|min|max|decay|send|timestamps)\\b"
+        },
+        {
+          "name": "keyword.other.auth.bird",
+          "match": "\\b(?:authentication|none|mac|permissive|password|generate|accept|from|to|algorithm|hmac|sha1|sha256|sha384|sha512|blake2s128|blake2s256|blake2b256|blake2b512)\\b"
+        },
+        {
+          "name": "keyword.other.time.bird",
+          "match": "\\b(?:time)\\b"
         },
         {
           "name": "keyword.other.config.bird",
-          "match": "\\b(?:router|id|hostname|description|debug|log|syslog|stderr|bird|protocols|tables|channels|preference|disabled|graceful|restart|timeouts|passwords|bfd|confederation|cluster|hold|time|keepalive|connect|retry|start|delay|error|wait|forget|scan|stub|cost|hello|interval|dead|neighbors|area|interface|authentication|password|algorithm|md5|sha1|sha256|sha512|hmac|local|remote|multihop|passive|rfc1583compat|tick|min|ls|retransmit|transmit|ack|check|link|state|database|summary|external|nssa|translator|always|candidate|never|role|stability|election|priority|wait|import|limit|action|warn|block|restart|disable|keep|filtered|receive|accept|reject|modify|add|delete|withdraw|unreachable|blackhole|prohibit|unreach|igp_metric|localpref|med|origin|community|large_community|ext_community|as_path|prepend|delete|filter|weight|gateway|scope|onlink|recursive|device|unreachable|prohibit|blackhole|multipath|igp|table|channel|sadr|src|learn|persist|scan|time|graceful|restart|export|limit|exceed|limit|action|via|ng|ipv4|ipv6)\\b"
+          "match": "\\b(?:hostname|description|debug|log|syslog|stderr|bird|protocols|tables|channels|timeouts|passwords|bfd|confederation|cluster|stub|dead|neighbors|area|md5|multihop|passive|rfc1583compat|tick|ls|retransmit|transmit|ack|state|database|summary|external|nssa|translator|always|candidate|never|role|stability|election|action|warn|block|disable|keep|filtered|receive|modify|add|delete|withdraw|unreachable|blackhole|prohibit|unreach|igp_metric|localpref|med|origin|community|large_community|ext_community|as_path|prepend|weight|gateway|scope|onlink|recursive|multipath|igp|channel|sadr|src|learn|persist|via|ng)\\b"
         },
         {
           "name": "keyword.other.flowspec.bird",
-          "match": "\\b(?:flow4|flow6|dst|src|proto|next|header|dport|sport|icmp|type|code|tcp|flags|length|dscp|dont_fragment|is_fragment|first_fragment|last_fragment|fragment|label|offset)\\b"
+          "match": "\\b(?:flow4|flow6|dst|src|proto|header|dport|sport|icmp|code|tcp|flags|dscp|dont_fragment|is_fragment|first_fragment|last_fragment|fragment|label|offset)\\b"
         },
         {
           "name": "keyword.other.address.bird",
-          "match": "\\b(?:port|vpn|mpls|from|max|as|aspa|roa4|roa6|aspa|table)\\b"
+          "match": "\\b(?:vpn|mpls|aspa|roa|roa6)\\b"
+        }
+      ]
+    },
+    "semantic-modifiers": {
+      "patterns": [
+        {
+          "name": "keyword.other.semantic-modifier.bird",
+          "match": "\\b(?:self|on|off|remote|extended)\\b"
+        }
+      ]
+    },
+    "filter-names": {
+      "patterns": [
+        {
+          "name": "entity.name.function.filter.bird",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*_filter\\b"
+        }
+      ]
+    },
+    "user-variables": {
+      "patterns": [
+        {
+          "name": "variable.other.user-defined.bird",
+          "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
         }
       ]
     },
@@ -522,7 +733,7 @@
           "end": "\\)",
           "beginCaptures": {
             "1": {
-              "name": "entity.name.function.bird"
+              "name": "entity.name.function.call.bird"
             }
           },
           "patterns": [
