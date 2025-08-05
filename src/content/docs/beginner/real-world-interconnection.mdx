@@ -60,7 +60,7 @@ graph LR
 
 #### 安装
 
-安装请参照 https://www.wireguard.com/install/ ，注意当系统比较老的时候，需要使用 dkms 安装方法，例如 [Centos 7 的安装教程](https://www.wireguard.com/install/#centos-8-module-plus-module-kmod-module-dkms-tools)。Debian bullseye 及之前的版本需要使用 backport 镜像源，网址在 https://backports.debian.org/Instructions/。
+安装请参照 https://www.wireguard.com/install/ ，注意当系统比较老的时候，需要使用 dkms 安装方法，例如 [Centos 7 的安装教程](https://www.wireguard.com/install/#centos-8-module-plus-module-kmod-module-dkms-tools)。Debian bullseye 及之前的版本需要使用 backport 镜像源，网址在 https://backports.debian.org/Instructions/ 。
 
 #### 生成密钥对
 
@@ -120,7 +120,7 @@ PersistentKeepalive = 120
 
 <Aside type="note">
   注意 `AllowedIPs` 是隧道里面传输的 IP 包的地址，不只是接口地址。
-  另外，Endpoint 可以两边都写，也可以只写一遍（例如只有一边有公网
+  另外，Endpoint 可以两边都写，也可以只写一边（例如只有一边有公网
   IP），但不能两边都不写！
 </Aside>
 
