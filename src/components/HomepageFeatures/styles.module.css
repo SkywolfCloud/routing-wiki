@@ -1,0 +1,126 @@
+.features {
+  padding: 4.5rem 0;
+  background: var(--ifm-background-color);
+}
+
+.sectionHeader {
+  max-width: 680px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  font-weight: 700;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  margin: 0 auto;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.cardGrid {
+  display: grid;
+  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  padding: 1.75rem;
+  border-radius: 1rem;
+  background: var(--ifm-background-surface-color, var(--ifm-card-background-color));
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.07);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--ifm-color-primary);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: rgba(79, 70, 229, 0.1);
+  font-size: 1.5rem;
+}
+
+.cardHeading {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.cardBody {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.cardBody p {
+  margin: 0;
+}
+
+.cardCta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.cardCta:hover {
+  color: var(--ifm-color-primary-dark);
+  transform: translateX(2px);
+}
+
+.cardCtaIcon {
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .features {
+    padding: 3.5rem 0;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+}
