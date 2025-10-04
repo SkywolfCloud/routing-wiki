@@ -1,0 +1,223 @@
+.features {
+  padding: 5rem 0;
+  background: linear-gradient(180deg, 
+    var(--ifm-background-surface-color) 0%, 
+    rgba(var(--ifm-color-primary-rgb), 0.02) 100%);
+}
+
+.sectionHeader {
+  max-width: 720px;
+  margin: 0 auto 3.5rem;
+  text-align: center;
+  display: grid;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, 
+    var(--ifm-color-primary) 0%, 
+    var(--ifm-color-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sectionSubtitle {
+  margin: 0 auto;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  max-width: 600px;
+}
+
+/* 卡片网格布局：只有 1、2、4 列三种形式 */
+.cardGrid {
+  display: grid;
+  gap: 2rem;
+  /* 默认 4 列 (大屏幕) */
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* 中等屏幕：2 列 */
+@media (max-width: 996px) {
+  .cardGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 小屏幕：1 列 */
+@media (max-width: 640px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  padding: 2rem;
+  border-radius: 1.25rem;
+  background: var(--ifm-background-surface-color, var(--ifm-card-background-color));
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--ifm-color-primary), 
+    var(--ifm-color-primary-light));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--ifm-color-primary-lightest);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.card:hover::before {
+  transform: scaleX(1);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, 
+    rgba(var(--ifm-color-primary-rgb), 0.15), 
+    rgba(var(--ifm-color-primary-rgb), 0.08));
+  font-size: 1.75rem;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover .cardIcon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.cardHeading {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.cardBody {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1rem;
+  line-height: 1.7;
+  flex-grow: 1;
+}
+
+.cardBody p {
+  margin: 0;
+}
+
+.cardCta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  width: fit-content;
+}
+
+.cardCta:hover {
+  color: var(--ifm-color-primary-darker);
+  transform: translateX(4px);
+}
+
+.cardCtaIcon {
+  font-size: 1.125rem;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardCta:hover .cardCtaIcon {
+  transform: translateX(2px) rotate(-45deg);
+}
+
+/* 平板和小屏幕优化 */
+@media (max-width: 996px) {
+  .features {
+    padding: 4rem 0;
+  }
+
+  .sectionHeader {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 640px) {
+  .features {
+    padding: 3rem 0;
+  }
+
+  .sectionHeader {
+    margin-bottom: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .cardIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+  }
+
+  .cardHeading {
+    font-size: 1.25rem;
+  }
+}
