@@ -129,7 +129,7 @@
 .heroPrimary:hover {
   transform: translateY(-3px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
   color: #0a0e27;
 }
 
