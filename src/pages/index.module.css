@@ -1,67 +1,108 @@
 .hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(4rem, 8vw, 6.5rem) 0;
-  background: radial-gradient(120% 140% at 0% 0%, rgba(59, 130, 246, 0.28), transparent 55%),
-    radial-gradient(110% 120% at 100% 0%, rgba(16, 185, 129, 0.25), transparent 55%),
-    linear-gradient(135deg, #0f172a 0%, #1d267d 100%);
+  padding: clamp(5rem, 10vw, 8rem) 0 clamp(4rem, 8vw, 6.5rem);
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.25), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.2), transparent 50%),
+    linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1629 100%);
   color: var(--ifm-color-white);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      transparent 1px,
+      transparent 80px,
+      rgba(255, 255, 255, 0.03) 81px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      transparent 1px,
+      transparent 80px,
+      rgba(255, 255, 255, 0.03) 81px
+    );
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .hero::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(80% 80% at 50% 50%, rgba(255, 255, 255, 0.1), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 60%);
   pointer-events: none;
 }
 
 .heroInner {
   position: relative;
-  max-width: 860px;
+  z-index: 1;
+  max-width: 900px;
   margin: 0 auto;
   text-align: left;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .heroBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   width: max-content;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .heroTitle {
-  font-size: clamp(2.75rem, 6vw, 4rem);
-  font-weight: 700;
+  font-size: clamp(3rem, 6vw, 4.5rem);
+  font-weight: 800;
   margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .heroSubtitle {
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  margin-top: -20px;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(1.375rem, 2.5vw, 2rem);
+  margin-top: -0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .heroDescription {
-  margin: -10px 0 10px;
-  font-size: 1.03rem;
+  margin: -0.5rem 0 -0.5rem 0;
+  font-size: 1.125rem;
   line-height: 1.8;
-  color: rgba(255, 255, 255, 0.75);
-  max-width: 640px;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 680px;
 }
 
 .heroCtas {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .heroPrimary,
@@ -69,35 +110,41 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  padding: 0.75rem 1.35rem;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 1rem;
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, color 180ms ease;
+  font-size: 1.0625rem;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
+  cursor: pointer;
 }
 
 .heroPrimary {
-  background: #ffffff;
-  color: #111827;
-  box-shadow: 0 20px 30px rgba(15, 23, 42, 0.25);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  color: #0a0e27;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .heroPrimary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 30px 45px rgba(15, 23, 42, 0.28);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  background: #ffffff;
+  color: #0a0e27;
 }
 
 .heroSecondary {
-  background: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .heroSecondary:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
 }
 
 .heroHighlights {
@@ -106,32 +153,74 @@
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.875rem;
 }
 
 .heroHighlights li {
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 1rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.heroHighlights li:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* 平板优化 */
+@media (max-width: 996px) {
+  .hero {
+    padding: clamp(4rem, 8vw, 6rem) 0 clamp(3.5rem, 6vw, 5rem);
+  }
+}
+
+/* 移动端优化 */
 @media (max-width: 768px) {
+  .hero {
+    padding: 3.5rem 0 3rem;
+  }
+
   .heroInner {
     text-align: center;
     justify-items: center;
+    gap: 1.5rem;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.25rem;
   }
 
   .heroDescription {
     max-width: 100%;
+    font-size: 1rem;
   }
 
   .heroCtas {
     justify-content: center;
   }
 
+  .heroPrimary,
+  .heroSecondary {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
   .heroHighlights {
     justify-content: center;
+  }
+
+  .heroHighlights li {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.85rem;
   }
 }
