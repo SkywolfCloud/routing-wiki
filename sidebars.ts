@@ -32,6 +32,7 @@ const sidebars: SidebarsConfig = {
     "beginner/after",
     "beginner/troubleshooting",
     "beginner/real-world-interconnection",
+    { type: "link", label: "Bird Wiki", href: "https://bird.xmsl.dev/" },
   ],
   miscSidebar: ["misc/misc", "misc/akvorado", "misc/tools"],
 };

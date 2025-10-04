@@ -154,11 +154,6 @@ const config: Config = {
           position: "left",
           label: "杂项",
         },
-        {
-          href: "https://bird.xmsl.dev/",
-          label: "Bird Wiki",
-          position: "left",
-        },
       ],
     },
     footer: {

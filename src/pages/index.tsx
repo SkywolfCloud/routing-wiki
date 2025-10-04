@@ -13,30 +13,26 @@ function HomepageHeader(): ReactNode {
     <header className={styles.hero}>
       <div className="container">
         <div className={styles.heroInner}>
-          <span className={styles.heroBadge}>Bird / BGP 中文指南</span>
+          <span className={styles.heroBadge}>BGP 中文指南</span>
           <Heading as="h1" className={styles.heroTitle}>
             {siteConfig.title}
           </Heading>
           <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>
           <p className={styles.heroDescription}>
-            从理论到实践，一站式整理 Bird 配置、路由过滤、跨地域互联等真实经验，带你搭建可靠的自治系统。
+            从理论到实践，一站式整理包括 Bird 在内多款路由软件的配置、路由过滤、跨地域互联等真实经验，带你搭建可靠的自治系统。
           </p>
           <div className={styles.heroCtas}>
             <Link className={styles.heroPrimary} to="/beginner">
               开始入门
             </Link>
-            <Link
-              className={styles.heroSecondary}
-              href="https://bird.xmsl.dev/"
-              target="_blank"
-              rel="noopener noreferrer">
-              查看 Bird Wiki
+            <Link className={styles.heroSecondary} to="/misc">
+              杂项
             </Link>
           </div>
           <ul className={styles.heroHighlights}>
             <li>完整的入门到进阶路径</li>
             <li>覆盖过滤器、互联、运维等场景</li>
-            <li>中文社区支持与最佳实践</li>
+            <li>包括行业内实际配置</li>
           </ul>
         </div>
       </div>
@@ -47,7 +43,7 @@ function HomepageHeader(): ReactNode {
 export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <Layout title={siteConfig.title} description="Bird / BGP 中文教程与实践指南">
+    <Layout title={siteConfig.title} description="BGP 中文教程与实践指南">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

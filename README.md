@@ -61,10 +61,7 @@ pnpm run serve   # 本地预览构建结果
 
 ## 自定义导航与样式
 
-- 顶部导航位于 `docusaurus.config.ts` 的 `themeConfig.navbar.items`，当前包含三个入口：
-  1. `beginnerSidebar` → Bird 新手教程
-  2. 外链 Bird Wiki (`https://bird.xmsl.dev/`)
-  3. `miscSidebar` → 杂项
+- 顶部导航位于 `docusaurus.config.ts` 的 `themeConfig.navbar.items`
 - 首页内容在 `src/pages/index.tsx` 与 `src/components/HomepageFeatures/`，如需调整文案或 CTA 请修改对应组件。
 - 全局样式覆盖在 `src/css/` 与 `src/pages/index.module.css` 中完成。
 

@@ -4,27 +4,55 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
+/* Brand palette */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: #4c6ef5;
+  --ifm-color-primary-dark: #3f5cd8;
+  --ifm-color-primary-darker: #384fc4;
+  --ifm-color-primary-darkest: #2d3f9f;
+  --ifm-color-primary-light: #5c7cfc;
+  --ifm-color-primary-lighter: #6c89ff;
+  --ifm-color-primary-lightest: #8ea3ff;
+  --ifm-link-color: var(--ifm-color-primary);
+  --ifm-link-hover-color: #2f5bff;
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(76, 110, 245, 0.08);
+  --wiki-surface-muted: #f5f7ff;
+  --wiki-card-border: rgba(76, 110, 245, 0.18);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #7f9cff;
+  --ifm-color-primary-dark: #6f88f5;
+  --ifm-color-primary-darker: #647cf0;
+  --ifm-color-primary-darkest: #4f63d5;
+  --ifm-color-primary-light: #9bb4ff;
+  --ifm-color-primary-lighter: #b3c4ff;
+  --ifm-color-primary-lightest: #d5ddff;
+  --ifm-link-color: var(--ifm-color-primary);
+  --ifm-link-hover-color: #b6c8ff;
+  --docusaurus-highlighted-code-line-bg: rgba(127, 156, 255, 0.18);
+  --wiki-surface-muted: #161a2b;
+  --wiki-card-border: rgba(127, 156, 255, 0.24);
+}
+
+/* Global accents */
+.markdown a {
+  transition: color 150ms ease, box-shadow 150ms ease;
+  box-shadow: inset 0 -0.1em 0 rgba(76, 110, 245, 0.25);
+}
+
+.markdown a:hover {
+  box-shadow: inset 0 -0.15em 0 rgba(76, 110, 245, 0.35);
+}
+
+/* Code blocks */
+.codeBlockTitle_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock-Content-styles-module {
+  background: rgba(76, 110, 245, 0.1);
+  color: #1c2554;
+}
+
+[data-theme='dark'] .codeBlockTitle_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock-Content-styles-module {
+  background: rgba(127, 156, 255, 0.12);
+  color: #d5ddff;
 }
