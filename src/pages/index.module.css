@@ -46,12 +46,12 @@
 
 .heroSubtitle {
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  margin: 0;
+  margin-top: -20px;
   color: rgba(255, 255, 255, 0.85);
 }
 
 .heroDescription {
-  margin: 0;
+  margin: -10px 0 10px;
   font-size: 1.03rem;
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.75);
